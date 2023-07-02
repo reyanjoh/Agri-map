@@ -1,15 +1,15 @@
 require('dotenv').config();
 const PORT = process.env.PORT || 3001;
 const DB = process.env.DB || 'mongodb://0.0.0.0:27017/agriMap';
-// const { config } = require('process');
 
-const mongoose = require('mongoose');
+
 const express = require('express');
 const app = express();
-
+const mongoose = require('mongoose');
 app.use(express.json());
 
-// app.use(config);
+const adminDARouter = require('./backend/routes/admin.DA')
+
 
 
 mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -18,6 +18,8 @@ mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
   console.log('You may now start the Development');
 
 });
+
+app.use('/da-admin', adminDARouter)
 
 app.listen(PORT, () => {
     console.log(`started @ http://localhost:${PORT}/`);
