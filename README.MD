@@ -14,6 +14,7 @@ Run:
 npm install
 ```
 Go back to main directory to install server dependencies
+
 Run:
 ```
 cd ..
