@@ -3,6 +3,7 @@
 ## Scripts
 
 Go to client directory to install react dependencies
+
 Run:
 ```
 cd client
@@ -23,6 +24,7 @@ npm install
 ```
 
 start development
+
 Run:
 ```
 npm start
