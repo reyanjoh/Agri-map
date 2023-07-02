@@ -15,6 +15,8 @@ app.use(express.json());
 mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => {
   console.log('Connected to DB');
+  console.log('You may now start the Development');
+
 });
 
 app.listen(PORT, () => {
