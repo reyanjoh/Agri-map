@@ -10,7 +10,7 @@ const DA_adminSchema = new mongoose.Schema({
         required: true
     }
 
-})
+}, { timestamps: true })
 const DAAdmin = mongoose.model('DAAdmin', DA_adminSchema);
 
 module.exports = DAAdmin;

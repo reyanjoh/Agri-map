@@ -1,19 +1,21 @@
-const router = require('express').Router();
-let DAAdmin = require('../models/userSchema');
+const express = require('express')
+const router = express.Router();
 
-router.route('/').get((res, req) =>{
+let DAAdmin = require('../models/DA.adminSchema');
+
+router.get('/', (req, res) =>{
     DAAdmin.find()
     .then(DAAdmin => res.json(DAAdmin))
     .catch(err => res.status(400).json('err' + err));
+
+    // res.send('sad')
 });
 
-router.route('/add').post((res, req) =>{
-    const username = req.body.username
-    const password = req.body.password
+router.post('/add', (req, res) =>{
 
     const newDAAdmin = new DAAdmin({
-        username,
-        password
+        username: req.body.username,
+        password: req.body.password
     })
 
     newDAAdmin.save()

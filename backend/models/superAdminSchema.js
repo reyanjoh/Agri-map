@@ -10,7 +10,7 @@ const superAdminSchema = new mongoose.Schema({
         required: true
     }
 
-})
+}, { timestamps: true })
 const SuperAdmin = mongoose.model('SuperAdmin', superAdminSchema);
 
 module.exports = SuperAdmin;
