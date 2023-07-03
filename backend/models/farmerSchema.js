@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const farmerSchema = new mongoose.Schema({
-    firstName:{
+    firstname:{
         type: String,
         required: true
     },
-    lastName:{
+    lastname:{
         type: String,
         required: true
     },
@@ -14,7 +15,7 @@ const farmerSchema = new mongoose.Schema({
         required: true
     },
     phoneNumber:{
-        type: Int
+        type: Number
     },
     username:{
         type: String,
@@ -29,15 +30,15 @@ const farmerSchema = new mongoose.Schema({
         ref: 'LandCoordinates'
     }],
     totalHectaresOwned:{
-        type: Int,
+        type: Number,
         required: true
     },
     DA_referenceNumber:{
-        type: Int,
+        type: Number,
         required: true
     },
     proofOfOwnership:{
-        type: File,
+        type: String,
         required: true
     }
 
