@@ -14,7 +14,7 @@ const landCoordinatesSchema = new mongoose.Schema({
         ref: 'Farmer'
     }]
 
-})
+}, { timestamps: true })
 
 const MortgagedSchema = new mongoose.Schema({
     location:[{
@@ -26,7 +26,7 @@ const MortgagedSchema = new mongoose.Schema({
         ref: 'Farmer'
     }]
 
-})
+}, { timestamps: true })
 
 
 const LandCoordinates = mongoose.model('LandCoordinates', landCoordinatesSchema);
