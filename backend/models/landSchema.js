@@ -1,22 +1,36 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const landCoordinatesSchema = new mongoose.Schema({
     xAxis:{
-        type: String,
+        type: Number,
         required: true
     },
     yAxis:{
-        type: String,
+        type: Number,
         required: true
     },
-    landOwner:[{
+    landOwner: {
         type: Schema.Types.ObjectId,
         ref: 'Farmer'
-    }]
+    }
 
 }, { timestamps: true })
 
 const MortgagedSchema = new mongoose.Schema({
+    
+    name: {
+        type: String,
+        required: true
+    },
+    phoneNumber: {
+        type: Number,
+        required: true
+    },
+    hectares: {
+        type: Number,
+        required: true
+    },
     location:[{
         type: Schema.Types.ObjectId,
         ref: 'LandCoordinates'
