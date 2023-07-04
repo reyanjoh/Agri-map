@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router();
 
-const {Mortgaged} = require('../models/landSchema')
+const {Mortgaged} = require('../models/landAndMortgagedSchema')
 
 
 router.get('/view-mortgaged-land-info/:id', (req, res) =>{

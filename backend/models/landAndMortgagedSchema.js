@@ -19,7 +19,7 @@ const landCoordinatesSchema = new mongoose.Schema({
 
 const MortgagedSchema = new mongoose.Schema({
     
-    name: {
+    mortgagedTo: {
         type: String,
         required: true
     },
@@ -35,10 +35,10 @@ const MortgagedSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'LandCoordinates'
     }],
-    landOwner:[{
+    landOwner:{
         type: Schema.Types.ObjectId,
         ref: 'Farmer'
-    }]
+    }
 
 }, { timestamps: true })
 

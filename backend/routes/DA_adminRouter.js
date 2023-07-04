@@ -3,11 +3,13 @@ const router = express.Router();
 
 const DAemployee = require('../models/DA.employeeSchema');
 const userRole = require('../models/userRoleSchema');
+const {isAdmin} = require('../middlewares/isSuperAdminAuth')
 
 
 router.post('/login', (req, res) =>{
     DAemployee.findOne({
-        username: req.body.username
+        username: req.body.username,
+        password: req.body.password
     })
     // .populate('userRole')
     .then(DAemployee => res.json(DAemployee))
@@ -17,7 +19,7 @@ router.post('/login', (req, res) =>{
 });
 
 
-router.get('/', (req, res) =>{
+router.get('/',isAdmin, (req, res) =>{
     DAemployee.find()
     // .populate('userRole')
     .then(DAemployee => res.json(DAemployee))

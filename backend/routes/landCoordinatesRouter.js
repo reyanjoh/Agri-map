@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router();
 
-const {LandCoordinates} = require('../models/landSchema')
+const {LandCoordinates} = require('../models/landAndMortgagedSchema')
 
 
 router.post('/add-land', (req, res) => {

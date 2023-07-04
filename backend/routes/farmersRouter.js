@@ -13,12 +13,10 @@ router.get('/view-all', (req, res) => {
 
 router.post('/add-farmer', (req, res) => {
     const newFarmer = new Farmer({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
+
+        userInfo: req.body.userInfo,
         address: req.body.address,
         phoneNumber: req.body.phoneNumber,
-        username: req.body.username,
-        password: req.body.password,
         ownedLand: req.body.ownedLand,
         totalHectaresOwned: req.body.totalHectaresOwned,
         DA_referenceNumber: req.body.DA_referenceNumber,
