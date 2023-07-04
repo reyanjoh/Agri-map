@@ -12,6 +12,8 @@ const farmersRouter = require('./backend/routes/farmersRouter')
 const adminDARouter = require('./backend/routes/DA_adminRouter')
 const landCoordinatesRouter = require('./backend/routes/landCoordinatesRouter')
 const morgageRouter = require('./backend/routes/mortgageRouter')
+const user = require('./backend/routes/user')
+
 
 
 
@@ -30,6 +32,8 @@ app.use('/farmers', farmersRouter)
 app.use('/da-admin', adminDARouter)
 app.use('/landCoordinates', landCoordinatesRouter)
 app.use('/morgage', morgageRouter)
+app.use('/', user)
+
 
 
 app.listen(PORT, () => {
