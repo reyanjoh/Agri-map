@@ -5,6 +5,18 @@ const DAemployee = require('../models/DA.employeeSchema');
 const userRole = require('../models/userRoleSchema');
 
 
+router.post('/login', (req, res) =>{
+    DAemployee.findOne({
+        username: req.body.username
+    })
+    // .populate('userRole')
+    .then(DAemployee => res.json(DAemployee))
+    .catch(err => res.status(400).json('err' + err));
+
+    // res.send('sad')
+});
+
+
 router.get('/', (req, res) =>{
     DAemployee.find()
     // .populate('userRole')
@@ -13,7 +25,6 @@ router.get('/', (req, res) =>{
 
     // res.send('sad')
 });
-
 
 
 router.post('/add', (req, res) =>{
