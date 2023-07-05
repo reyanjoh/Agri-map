@@ -9,7 +9,17 @@ router.post('/login', (req, res) =>{
         username: req.body.username,
         password: req.body.password
     })
-    .then(User => res.json(User))
+    .then(User => {
+
+        const userInfo = {
+            username : User.username,
+            password : User.password,
+            userRole : User.userRole
+
+        }
+
+        res.json(userInfo)
+    })
     .catch(err => res.status(400).json('err' + err));
 
     // res.send('sad')
@@ -22,11 +32,12 @@ router.post('/add-user', (req, res) => {
         username: req.body.username,
         password: req.body.password,
         farmerInfo: req.body.farmerInfo,
-        DAEmployeeInfo: req.body.DAEmployeeInfo
+        DAEmployeeInfo: req.body.DAEmployeeInfo,
+        userRole: req.body.userRole
 
     })
     newUser.save()
-    .then(() => res.json('user added'))
+    .then((newUser) => res.json(newUser))
     .catch(err => res.status(400).json('' + err))
 })
 

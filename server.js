@@ -7,16 +7,19 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 app.use(express.json());
+const cors = require('cors');
+
+app.use(
+  cors({
+    origin: '*'
+  })
+)
 
 const farmersRouter = require('./backend/routes/farmersRouter')
 const adminDARouter = require('./backend/routes/DA_adminRouter')
 const landCoordinatesRouter = require('./backend/routes/landCoordinatesRouter')
 const morgageRouter = require('./backend/routes/mortgageRouter')
 const user = require('./backend/routes/user')
-
-
-
-
 
 
 

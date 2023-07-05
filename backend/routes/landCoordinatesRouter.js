@@ -16,4 +16,11 @@ router.post('/add-land', (req, res) => {
     .catch(err => res.status(400).json('' + err))
 })
 
+router.get('/view-lands', (req, res) => {
+    LandCoordinates.find()
+    .populate('landOwner')
+    .then((LandCoordinates) => res.json(LandCoordinates))
+    .catch(err => res.status(400).json('' + err))
+})
+
 module.exports = router;

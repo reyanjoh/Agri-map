@@ -26,7 +26,12 @@ const userSchema = new mongoose.Schema({
     },
     DAEmployeeInfo: {
         type: Schema.Types.ObjectId,
-        ref: 'Farmer'
+        ref: 'DAemployee'
+    },
+    userRole: {
+        type: String,
+        default: "FARMER",
+        enum: [ "NON_ADMIN_DA_EMPLOYEE", "DA_ADMIN", "FARMER", "ROLE.SUPER_ADMIN"],
     }
 
 }, { timestamps: true })

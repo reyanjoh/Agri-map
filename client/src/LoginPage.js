@@ -1,19 +1,53 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Checkbox, Card } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+// import usePost from './util/usePost'
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
+  // const {data} = usePost('http://localhost:5000/login')
+
   const handleSubmit = (values) => {
     setLoading(true);
 
-    // Simulating login request
+    
+
     setTimeout(() => {
       setLoading(false);
-      console.log('Login successful!', values);
+      // console.log('Login successful!', values);
+      
+      fetch('http://localhost:5000/login', {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify(values)
+    }).then( res => res.json())
+    .then(data => {
+      if(data.userRole === 'DA_ADMIN'){
+
+        //TO ADMIN VIEW
+        console.log(data);
+
+      }else if(data.userRole === 'FARMER'){
+
+        //TO FARMER VIEW
+        console.log(data);
+
+      }else if(data.userRole === 'NON_ADMIN_DA_EMPLOYEE'){
+
+        //TO NON_ADMIN_DA VIEW
+        console.log(data);
+
+      }
+    })
+    .catch((e) => {
+      return(e)
+    })
+
       // Redirect to the dashboard or perform other actions
     }, 2000);
+
+
   };
 
   const handleForgotPassword = () => {
