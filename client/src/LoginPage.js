@@ -17,13 +17,13 @@ const LoginPage = () => {
       setLoading(false);
       // console.log('Login successful!', values);
       
-      fetch('http://localhost:5000/login', {
+      fetch('http://localhost:5001/login', {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(values)
     }).then( res => res.json())
     .then(data => {
-      if(data.userRole === 'DA_ADMIN'){
+      if(data.userRole === 'ADMIN'){
 
         //TO ADMIN VIEW
         console.log(data);

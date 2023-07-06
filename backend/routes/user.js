@@ -17,6 +17,7 @@ router.post('/login', (req, res) =>{
             userRole : User.userRole
 
         }
+        
 
         res.json(userInfo)
     })
