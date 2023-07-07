@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LoginPage from './LoginPage';
 import DashboardPage from './DashboardPage';
+
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  useEffect(()=>{
+    if (localStorage.getItem('userName')) {
+      setIsAuthenticated(true);
+    }
+  },[])
+
   const handleLogin = () => {
+      setIsAuthenticated(true);
     // Perform login logic, e.g., validate credentials, set authentication state
-    setIsAuthenticated(true);
   };
 
   const handleLogout = () => {

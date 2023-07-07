@@ -14,16 +14,12 @@ const farmerSchema = new mongoose.Schema({
     phoneNumber:{
         type: Number
     },
-    ownedLand:[{
-        type: Schema.Types.ObjectId,
-        ref: 'LandCoordinates'
-    }],
     totalHectaresOwned:{
         type: Number,
         required: true
     },
     DA_referenceNumber:{
-        type: Number,
+        type: String,
         required: true
     },
     proofOfOwnership:{

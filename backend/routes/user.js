@@ -42,7 +42,7 @@ router.post('/add-user', (req, res) => {
     .catch(err => res.status(400).json('' + err))
 })
 
-router.get('/view-all-users', (req, res) => {
+router.get('/view-all', (req, res) => {
     User.find()
     .populate('farmerInfo')
     .then((users) => res.json(users))

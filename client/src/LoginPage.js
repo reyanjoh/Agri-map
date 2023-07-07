@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Checkbox, Card } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 // import usePost from './util/usePost'
@@ -7,6 +7,11 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   // const {data} = usePost('http://localhost:5000/login')
+  
+  useEffect(()=>{
+    if (localStorage.getItem('userName')) {
+    }
+  },[])
 
   const handleSubmit = (values) => {
     setLoading(true);
@@ -23,22 +28,9 @@ const LoginPage = () => {
       body: JSON.stringify(values)
     }).then( res => res.json())
     .then(data => {
-      if(data.userRole === 'ADMIN'){
-
-        //TO ADMIN VIEW
-        console.log(data);
-
-      }else if(data.userRole === 'FARMER'){
-
-        //TO FARMER VIEW
-        console.log(data);
-
-      }else if(data.userRole === 'NON_ADMIN_DA_EMPLOYEE'){
-
-        //TO NON_ADMIN_DA VIEW
-        console.log(data);
-
-      }
+        localStorage.setItem('userName', data.username)
+        localStorage.setItem('userRole', data.userRole)
+        window.location.href = '/';
     })
     .catch((e) => {
       return(e)

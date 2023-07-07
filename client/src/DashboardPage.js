@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import { Layout, Menu, Typography, Table, Button, Breadcrumb } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
+import useFetch from './util/useFetch';
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 const { Title } = Typography;
+
+
+
+
+
 
 const DashboardPage = ({ onLogout }) => {
   const [showTable, setShowTable] = useState(false); 
@@ -12,21 +18,32 @@ const DashboardPage = ({ onLogout }) => {
   const [stats, setStats] = useState([]);
   const [showStats, setShowStats] = useState(false); 
 
+  const {data, loading, err} = useFetch('http://localhost:5001/farmers/view-all')
+
+
+
   const handleLogout = () => {
+    localStorage. removeItem('userName')
+    localStorage. removeItem('userRole')
     onLogout();
   };
 
   const handleFarmersClick = () => {
     setShowTable(true);
     setShowStats(false);
-    setFarmers([
+
+
+    setFarmers(
+      // data
+      [
       {number: '10-13-07-014-000076',last: 'ABONERO', first: 'CRESENTE', middle: 'GEREDOS', phone: '1234567890', hectaresOwned: 3 },
       {number: '10-13-07-014-000165',last: 'ABONERO', first: 'JUANITO', middle: 'CUBIO', phone: '1234567890', hectaresOwned: 1 },
       {number: '10-13-07-014-000159',last: 'ACURAM', first: 'MERCIDITA', middle: 'ABONERO', phone: '1234567890', hectaresOwned: 1 },
       {number: '10-13-07-014-000160',last: 'ACURAM', first: 'ROMEL', middle: 'ABONERO', phone: '1234567890', hectaresOwned: 1 },
       {number: '10-13-07-014-000106',last: 'ADAMI', first: 'JERSON', middle: 'ESLITA', phone: '1234567890', hectaresOwned: 0.5 },
       {number: '10-13-07-014-000083',last: 'ALBINO', first: 'ROSARIO', middle: 'MERIEL', phone: '1234567890', hectaresOwned: 1 },
-    ]);
+    ]
+    );
   };
 
   const handleStatsClick = () => {
