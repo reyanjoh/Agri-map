@@ -1,54 +1,62 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Typography, Table, Button, Breadcrumb } from 'antd';
-import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined } from '@ant-design/icons';
+import React, { useState, useEffect} from 'react';
+import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload } from 'antd';
+import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
+
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 const { Title } = Typography;
 
-
-
-
-
-
-const DashboardPage = ({ onLogout }) => {
-  const [showTable, setShowTable] = useState(false); 
+const DashboardPage = ({ onLogout, visible }) => {
   const [farmers, setFarmers] = useState([]);
   const [stats, setStats] = useState([]);
   const [showStats, setShowStats] = useState(false); 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showFarmersTable, setShowFarmersTable] = useState(false);
 
-  const {data, loading, err} = useFetch('http://localhost:5001/farmers/view-all')
-
-
+  const { data, loading, err } = useFetch('http://localhost:5001/farmers/view-all');
 
   const handleLogout = () => {
-    localStorage. removeItem('userName')
-    localStorage. removeItem('userRole')
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
     onLogout();
   };
 
+  const handleAddClick = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleRemoveClick = (record) => {
+    const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
+    setFarmers(updatedFarmers);
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleModalSubmit = (values) => {
+    const newFarmer = {
+      number: values.DA_referenceNumber,
+      fullName: values.fullName,
+      address: values.address,
+      phone: values.phoneNumber,
+      hectaresOwned: values.totalHectaresOwned,
+    };
+    setFarmers([...farmers, newFarmer]);
+    setIsModalVisible(false);
+    setShowFarmersTable(true);
+  };
+
   const handleFarmersClick = () => {
-    setShowTable(true);
+    setShowFarmersTable(true);
     setShowStats(false);
-
-
-    setFarmers(
-      // data
-      [
-      {number: '10-13-07-014-000076',last: 'ABONERO', first: 'CRESENTE', middle: 'GEREDOS', phone: '1234567890', hectaresOwned: 3 },
-      {number: '10-13-07-014-000165',last: 'ABONERO', first: 'JUANITO', middle: 'CUBIO', phone: '1234567890', hectaresOwned: 1 },
-      {number: '10-13-07-014-000159',last: 'ACURAM', first: 'MERCIDITA', middle: 'ABONERO', phone: '1234567890', hectaresOwned: 1 },
-      {number: '10-13-07-014-000160',last: 'ACURAM', first: 'ROMEL', middle: 'ABONERO', phone: '1234567890', hectaresOwned: 1 },
-      {number: '10-13-07-014-000106',last: 'ADAMI', first: 'JERSON', middle: 'ESLITA', phone: '1234567890', hectaresOwned: 0.5 },
-      {number: '10-13-07-014-000083',last: 'ALBINO', first: 'ROSARIO', middle: 'MERIEL', phone: '1234567890', hectaresOwned: 1 },
-    ]
-    );
   };
 
   const handleStatsClick = () => {
     setShowStats(true);
-    setShowTable(false);
+    setShowFarmersTable(false);
     setStats([
       {number: '10-13-07-014-000076',last: 'ABONERO', first: 'CRESENTE', middle: 'GEREDOS', hectaresOwned: 3 },
       {number: '10-13-07-014-000165',last: 'ABONERO', first: 'JUANITO', middle: 'CUBIO', hectaresOwned: 1 },
@@ -59,35 +67,24 @@ const DashboardPage = ({ onLogout }) => {
     ]);
   };
 
-  // const handlePrint = () => {
-  //   window.print();
-  // };
+  useEffect(() => {
+    const savedFarmers = localStorage.getItem('farmers');
+    if (savedFarmers) {
+      setFarmers(JSON.parse(savedFarmers));
+      setShowFarmersTable(true);
+    }
+  }, []);
 
-  // print as a word file
-  // const handlePrint = () => {
-  //   const printContent = document.getElementById('statsTable');
-  //   const printWindow = window.open('', '', 'width=800,height=600');
-  //   printWindow.document.write('<html><head><title>Statistics Report</title>');
-  //   printWindow.document.write('<style>');
-  //   printWindow.document.write('table { border-collapse: collapse; width: 100%; }');
-  //   printWindow.document.write('th, td { border: 1px solid black; padding: 8px; }');
-  //   printWindow.document.write('</style>');
-  //   printWindow.document.write('</head><body>');
-  //   printWindow.document.write(printContent.innerHTML);
-  //   printWindow.document.write('</body></html>');
-  //   printWindow.document.close();
-  //   printWindow.print();
-  // };
+  useEffect(() => {
+    localStorage.setItem('farmers', JSON.stringify(farmers));
+  }, [farmers]);
 
-  // print as a excel file
   const handlePrint = () => {
     const printContent = document.getElementById('statsTable');
-  
-    // Create a new workbook and add a worksheet
+
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.table_to_sheet(printContent);
-  
-    // Adjust the width of columns B to E (B1 to E1)
+
     const columnWidths = [
       { wch: 20 }, // Column A
       { wch: 20 }, // Column B
@@ -96,30 +93,40 @@ const DashboardPage = ({ onLogout }) => {
       { wch: 20 }, // Column E
     ];
     worksheet['!cols'] = columnWidths;
-  
-    // Get the current date
+
     const currentDate = new Date();
     const options = { year: 'numeric', month: 'short', day: '2-digit' };
     const dateString = currentDate.toLocaleDateString('en-US', options).replace('-');
-  
-    // Add the worksheet to the workbook with the date in the sheet name
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Statistics-Report-${dateString}`); 
-  
-    // Convert the workbook to an Excel file
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Statistics-Report-${dateString}`);
+
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  
-    // Create a Blob from the buffer
+
     const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  
-    // Create a download link and trigger the download
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `Statistics-Report-${dateString}.xlsx`;
     link.click();
-  
   };
-  
+
+  const columns = [
+    { title: 'Reference Number', dataIndex: 'number', key: 'number' },
+    { title: 'Full Name', dataIndex: 'fullName', key: 'fullName' },
+    { title: 'Address', dataIndex: 'address', key: 'address' },
+    { title: 'Phone Number', dataIndex: 'phone', key: 'phone' },
+    { title: 'Total Hectares Owned', dataIndex: 'hectaresOwned', key: 'hectaresOwned' },
+    {
+      title: 'Actions',
+      dataIndex: 'actions',
+      key: 'actions',
+      render: (_, record) => (
+        <Button type="primary" danger onClick={() => handleRemoveClick(record)}>Remove</Button>
+      ),
+    },
+  ];
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider >
@@ -130,13 +137,13 @@ const DashboardPage = ({ onLogout }) => {
           <Menu.Item icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
           </Menu.Item>
-          <Menu.Item icon={<LineChartOutlined />} >
-          Mortgage Land
+          <Menu.Item icon={<LineChartOutlined />} disabled>
+            Mortgage Land
           </Menu.Item>
-          <Menu.Item  icon={<LineChartOutlined />} onClick={handleStatsClick}>
+          <Menu.Item icon={<LineChartOutlined />} onClick={handleStatsClick}>
             Statistics Report
           </Menu.Item>
-          <Menu.Item  icon={<LogoutOutlined />} onClick={handleLogout}>
+          <Menu.Item icon={<LogoutOutlined />} onClick={handleLogout}>
             Logout
           </Menu.Item>
         </Menu>
@@ -145,23 +152,15 @@ const DashboardPage = ({ onLogout }) => {
         <Header className="site-layout-background" style={{ padding: 0 }} />
         <Content style={{ margin: '16px' }}>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-            {showTable && (
+            {showFarmersTable && (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                   <h3 style={{ marginRight: '16px' }}>List of Farmers</h3>
                   <div style={{ marginLeft: 'auto' }}>
-                    <Button style={{ marginRight: '8px' }}>Add</Button>
-                    <Button>Remove</Button>
+                    <Button style={{ marginRight: '8px' }} onClick={handleAddClick}>Add</Button>
                   </div>
                 </div>
-                <Table dataSource={farmers}>
-                  <Table.Column title="Reference Number" dataIndex="number" key="number" />
-                  <Table.Column title="Last Name" dataIndex="last" key="last" />
-                  <Table.Column title="First Name" dataIndex="first" key="first" />
-                  <Table.Column title="Middle Name" dataIndex="middle" key="middle" />
-                  <Table.Column title="Phone Number" dataIndex="phone" key="phone" />
-                  <Table.Column title="Total Hectares" dataIndex="hectaresOwned" key="hectaresOwned" />
-                </Table>
+                <Table dataSource={farmers} columns={columns} />
               </>
             )}
             {showStats && (
@@ -186,6 +185,43 @@ const DashboardPage = ({ onLogout }) => {
         </Content>
         <Footer style={{ textAlign: 'center' }}>Agrimap ©2023</Footer>
       </Layout>
+
+
+      <Modal
+        title="Add Farmer"
+        visible={isModalVisible}
+        onCancel={handleModalCancel}
+        footer={null}
+      >
+        <Form onFinish={handleModalSubmit}>
+          <Form.Item label="Reference Number" name="DA_referenceNumber" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Full Name" name="fullName" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Proof Of Ownership" name="proofOfOwnership">
+            <Upload>
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Add
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
     </Layout>
   );
 };
