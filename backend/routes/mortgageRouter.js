@@ -13,7 +13,7 @@ router.get('/view-mortgaged-land-info/:id', (req, res) =>{
     // res.send('sad')
 });
 
-router.post('/add-land', (req, res) => {
+router.post('/add-new', (req, res) => {
     const newMortgagedLand = new Mortgaged({
         name: req.body.name,
         phoneNumber:req.body.phoneNumber,

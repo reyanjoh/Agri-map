@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 app.use(express.json());
 const cors = require('cors');
 
+const serverless = require('serverless-http')
+
 app.use(
   cors({
     origin: '*'
@@ -31,14 +33,17 @@ mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
 });
 
 
-app.use('/farmers', farmersRouter)
-app.use('/da-admin', adminDARouter)
-app.use('/landCoordinates', landCoordinatesRouter)
-app.use('/morgage', morgageRouter)
-app.use('/', user)
+app.use('/.netlify/functions/farmers', farmersRouter)
+app.use('/.netlify/functions/da-admin', adminDARouter)
+app.use('/.netlify/functions/landCoordinates', landCoordinatesRouter)
+app.use('/.netlify/functions/morgage', morgageRouter)
+app.use('/.netlify/functions/', user)
 
 
 
 app.listen(PORT, () => {
     console.log(` server started @ http://localhost:${PORT}/`);
 });
+
+
+module.exports.handler = serverless(app);
