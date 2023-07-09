@@ -4,12 +4,14 @@ const DB = process.env.DB || 'mongodb://0.0.0.0:27017/agriMap';
 
 
 const express = require('express');
+const router = express.Router();
 const app = express();
 const mongoose = require('mongoose');
-app.use(express.json());
 const cors = require('cors');
 
-const serverless = require('serverless-http')
+app.use(express.json());
+app.use('/.netlify/functions/api', router)
+
 
 app.use(
   cors({
@@ -33,17 +35,14 @@ mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
 });
 
 
-app.use('/.netlify/functions/farmers', farmersRouter)
-app.use('/.netlify/functions/da-admin', adminDARouter)
-app.use('/.netlify/functions/landCoordinates', landCoordinatesRouter)
-app.use('/.netlify/functions/morgage', morgageRouter)
-app.use('/.netlify/functions/', user)
+app.use('/farmers', farmersRouter)
+app.use('/da-admin', adminDARouter)
+app.use('/landCoordinates', landCoordinatesRouter)
+app.use('/morgage', morgageRouter)
+app.use('/', user)
 
 
 
 app.listen(PORT, () => {
     console.log(` server started @ http://localhost:${PORT}/`);
 });
-
-
-module.exports.handler = serverless(app);
