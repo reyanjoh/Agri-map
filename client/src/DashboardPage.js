@@ -15,7 +15,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showFarmersTable, setShowFarmersTable] = useState(false);
 
-  const { data, loading, err } = useFetch('http://localhost:5001/farmers/view-all');
+  const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
 
   const handleLogout = () => {
     localStorage.removeItem('userName');

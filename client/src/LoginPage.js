@@ -22,7 +22,7 @@ const LoginPage = () => {
       setLoading(false);
       // console.log('Login successful!', values);
       
-      fetch('http://localhost:5001/login', {
+      fetch('https://agri-map.onrender.com/login', {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(values)
