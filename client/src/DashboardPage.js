@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space } from 'antd';
+import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
@@ -16,6 +16,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [showFarmersTable, setShowFarmersTable] = useState(false);
 
   const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
+  console.log(data);
 
   const handleLogout = () => {
     localStorage.removeItem('userName');
@@ -112,11 +113,12 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   const columns = [
-    { title: 'Reference Number', dataIndex: 'number', key: 'number' },
-    { title: 'Full Name', dataIndex: 'fullName', key: 'fullName' },
-    { title: 'Address', dataIndex: 'address', key: 'address' },
-    { title: 'Phone Number', dataIndex: 'phone', key: 'phone' },
-    { title: 'Total Hectares Owned', dataIndex: 'hectaresOwned', key: 'hectaresOwned' },
+    { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber' },
+    { title: 'First Name', render: (data) => (data?.userInfo.firstname), key: 'username' },
+    { title: 'Last Name', render: (data) => (data?.userInfo.lastname), key: 'lastname' },
+    { title: 'Address', render: (data) => (data?.address), key: 'Address' },
+    { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber' },
+    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned' },
     {
       title: 'Actions',
       dataIndex: 'actions',
@@ -130,11 +132,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider >
-      <Space >
-      <img src="logo-leaf.png" alt="Logo" style={{ height: 50, marginTop:10, marginLeft: 5 }} />
-      <Title level={2} style={{color:'white'}}>Agrimap</Title>
-    </Space>
-        <br />
+        <Title style={{ height: '32px', margin: '16px', color: 'white' }}>Agrimap</Title>
         <br />
         <h2 style={{ height: '32px', margin: '16px', color: 'white' }}>Dashboard</h2>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
@@ -153,7 +151,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         </Menu>
       </Sider>
       <Layout className="site-layout">
-        {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
+        <Header className="site-layout-background" style={{ padding: 0 }} />
         <Content style={{ margin: '16px' }}>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
             {showFarmersTable && (
@@ -164,7 +162,7 @@ const DashboardPage = ({ onLogout, visible }) => {
                     <Button style={{ marginRight: '8px' }} onClick={handleAddClick}>Add</Button>
                   </div>
                 </div>
-                <Table dataSource={farmers} columns={columns} />
+                <Table dataSource={data} columns={columns} />
               </>
             )}
             {showStats && (
