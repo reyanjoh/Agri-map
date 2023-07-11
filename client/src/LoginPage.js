@@ -52,7 +52,7 @@ const LoginPage = () => {
     <div className="login-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', }}>
       <Card style={{ borderRadius: 10, width: 400, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <img src="/path/to/logo.png" alt="Logo" style={{ height: 50 }} />
+          <img src='agrimap.png' alt="Logo" style={{ height: 130 }} />
         </div>
 
         <Form

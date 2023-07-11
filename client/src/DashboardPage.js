@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload } from 'antd';
+import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
@@ -130,7 +130,11 @@ const DashboardPage = ({ onLogout, visible }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider >
-        <Title style={{ height: '32px', margin: '16px', color: 'white' }}>Agrimap</Title>
+      <Space >
+      <img src="logo-leaf.png" alt="Logo" style={{ height: 50, marginTop:10, marginLeft: 5 }} />
+      <Title level={2} style={{color:'white'}}>Agrimap</Title>
+    </Space>
+        <br />
         <br />
         <h2 style={{ height: '32px', margin: '16px', color: 'white' }}>Dashboard</h2>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
@@ -149,7 +153,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         </Menu>
       </Sider>
       <Layout className="site-layout">
-        <Header className="site-layout-background" style={{ padding: 0 }} />
+        {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
         <Content style={{ margin: '16px' }}>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
             {showFarmersTable && (
