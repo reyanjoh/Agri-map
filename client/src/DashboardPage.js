@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space, Card } from 'antd';
+import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space, Card, Popconfirm } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
@@ -7,16 +7,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'rec
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const DashboardPage = ({ onLogout, visible }) => {
+  let [meta, setMeta] = useState(null);
   const [farmers, setFarmers] = useState([]);
   const [stats, setStats] = useState([]);
   const [showStats, setShowStats] = useState(false); 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showFarmersTable, setShowFarmersTable] = useState(false);
 
-  const { data, loading, err } = useFetch('http://localhost:5001/farmers/view-all');
+  const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
   console.log(data);
 
   const handleLogout = () => {
@@ -34,20 +35,20 @@ const DashboardPage = ({ onLogout, visible }) => {
     setFarmers(updatedFarmers);
   };
 
-  const handleEditClick = (record) => {
-    // Logic for handling the edit action
-    const updatedFarmers = farmers.map((farmer) => {
-      if (farmer.number === record.number) {
-        // Perform the necessary edits to the farmer object
-        // For example, you can update the farmer's name:
-        const updatedFarmer = { ...farmer, name: 'Updated Name' };
-        return updatedFarmer;
-      }
-      return farmer;
-    });
+  // const handleEditClick = (record) => {
+  //   // Logic for handling the edit action
+  //   const updatedFarmers = farmers.map((farmer) => {
+  //     if (farmer.number === record.number) {
+  //       // Perform the necessary edits to the farmer object
+  //       // For example, you can update the farmer's name:
+  //       const updatedFarmer = { ...farmer, name: 'Updated Name' };
+  //       return updatedFarmer;
+  //     }
+  //     return farmer;
+  //   });
   
-    setFarmers(updatedFarmers);
-  };
+  //   setFarmers(updatedFarmers);
+  // };
   
 
   const handleModalCancel = () => {
@@ -168,15 +169,24 @@ const DashboardPage = ({ onLogout, visible }) => {
     { title: 'Last Name', render: (data) => (data?.userInfo.lastname), key: 'lastname' },
     { title: 'Address', render: (data) => (data?.address), key: 'Address' },
     { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber' },
-    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned' },
+    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center',},
     {
       title: 'Actions',
       dataIndex: 'actions',
       key: 'actions',
       render: (_, record) => (
         <>
-        <Button type="primary" onClick={() => handleEditClick(record)}>Edit</Button>
-        <Button type="primary" danger onClick={() => handleRemoveClick(record)}>Remove</Button>
+           <Popconfirm
+            placement="topRight"
+            title="Are you sure?"
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() =>  handleRemoveClick(record)}
+          >
+            <Text type="danger" style={{ cursor: 'pointer' }}>
+              Remove
+            </Text>
+          </Popconfirm>
         </>
       ),
     },
@@ -220,7 +230,10 @@ const DashboardPage = ({ onLogout, visible }) => {
                   </div>
                 </div>
                 {/* <Table dataSource={farmers} columns={columns} /> */}
-                <Table dataSource={data} columns={columns} />
+                <Table dataSource={data} columns={columns} pagination={{
+          total: meta?.total ? meta?.total : 0,
+          pageSize: 5,
+        }}/>
               </>
             )}
          {showStats && (
@@ -238,16 +251,17 @@ const DashboardPage = ({ onLogout, visible }) => {
                   <Button type='primary' onClick={handlePrint}>Download</Button>
                 </div>
               </div>
-              <Table id="statsTable" dataSource={stats}>
-                <Table.Column title="Reference Number" dataIndex="number" key="number" />
-                <Table.Column title="First Name" dataIndex="firstName" key="firstName" />
-                <Table.Column title="Last Name" dataIndex="lastName" key="lastName" />
+              <Table id="statsTable" dataSource={data} pagination={{
+              total: meta?.total ? meta?.total : 0,
+              pageSize: 5,}}>
+                <Table.Column title="Reference Number" dataIndex="DA_referenceNumber" key="referenceNumber" />
+                <Table.Column title="First Name" dataIndex="username" key="username" />
+                <Table.Column title="Last Name" dataIndex="lastname" key="lastname" />
                 <Table.Column title="Address" dataIndex="address" key="address" />
-                <Table.Column title="Phone Number" dataIndex="phone" key="phone" />
-                <Table.Column title="Total Hectares" dataIndex="hectaresOwned" key="hectaresOwned" />
+                <Table.Column title="Phone Number" dataIndex="phoneNumber" key="phoneNumber" />
+                <Table.Column title="Total Hectares Owned" dataIndex="totalHectaresOwned" key="totalHectaresOwned"align='center' />
               </Table>
               </Card>
-            
             </>
           )}
         </div>
