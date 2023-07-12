@@ -1,8 +1,9 @@
 import React, { useState, useEffect} from 'react';
-import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space } from 'antd';
+import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space, Card } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -16,6 +17,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [showFarmersTable, setShowFarmersTable] = useState(false);
 
   const { data, loading, err } = useFetch('http://localhost:5001/farmers/view-all');
+  console.log(data);
 
   const handleLogout = () => {
     localStorage.removeItem('userName');
@@ -32,17 +34,48 @@ const DashboardPage = ({ onLogout, visible }) => {
     setFarmers(updatedFarmers);
   };
 
+  const handleEditClick = (record) => {
+    // Logic for handling the edit action
+    const updatedFarmers = farmers.map((farmer) => {
+      if (farmer.number === record.number) {
+        // Perform the necessary edits to the farmer object
+        // For example, you can update the farmer's name:
+        const updatedFarmer = { ...farmer, name: 'Updated Name' };
+        return updatedFarmer;
+      }
+      return farmer;
+    });
+  
+    setFarmers(updatedFarmers);
+  };
+  
+
   const handleModalCancel = () => {
     setIsModalVisible(false);
   };
 
+  // bar graph for statistics/analytics
+  const renderChart = () => {
+    return (
+      <BarChart width={1100} height={300} data={stats}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="number" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="hectaresOwned" fill="#75AA3F" />
+      </BarChart>
+    );
+  };
+
   const handleModalSubmit = (values) => {
     const newFarmer = {
-      number: values.DA_referenceNumber,
-      fullName: values.fullName,
+      referenceNumber: values.referenceNumber,
+      username: values.username,
+      lastname: values.lastname,
       address: values.address,
-      phone: values.phoneNumber,
-      hectaresOwned: values.totalHectaresOwned,
+      phoneNumber: values.phoneNumber,
+      totalHectaresOwned: values.totalHectaresOwned,
     };
     setFarmers([...farmers, newFarmer]);
     setIsModalVisible(false);
@@ -58,12 +91,12 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowStats(true);
     setShowFarmersTable(false);
     setStats([
-      {number: '10-13-07-014-000076',last: 'ABONERO', first: 'CRESENTE', middle: 'GEREDOS', hectaresOwned: 3 },
-      {number: '10-13-07-014-000165',last: 'ABONERO', first: 'JUANITO', middle: 'CUBIO', hectaresOwned: 1 },
-      {number: '10-13-07-014-000159',last: 'ACURAM', first: 'MERCIDITA', middle: 'ABONERO', hectaresOwned: 1 },
-      {number: '10-13-07-014-000160',last: 'ACURAM', first: 'ROMEL', middle: 'ABONERO',  hectaresOwned: 1 },
-      {number: '10-13-07-014-000106',last: 'ADAMI', first: 'JERSON', middle: 'ESLITA',  hectaresOwned: 0.5 },
-      {number: '10-13-07-014-000083',last: 'ALBINO', first: 'ROSARIO', middle: 'MERIEL',  hectaresOwned: 1 },
+      {number: '10-13-07-014-000076',firstName: 'Cresente', lastName: 'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 3 },
+      {number: '10-13-07-014-000165',firstName: 'Juanito', lastName:'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
+      {number: '10-13-07-014-000159',firstName: 'Mercidita', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
+      {number: '10-13-07-014-000160',firstName: 'Romel', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
+      {number: '10-13-07-014-000106',firstName: 'Jerson' ,lastName:'Adami', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 0.5 },
+      {number: '10-13-07-014-000083',firstName: 'Rosario', lastName: 'Albino', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
     ]);
   };
 
@@ -79,6 +112,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     localStorage.setItem('farmers', JSON.stringify(farmers));
   }, [farmers]);
 
+  // export to excel
   const handlePrint = () => {
     const printContent = document.getElementById('statsTable');
 
@@ -111,25 +145,46 @@ const DashboardPage = ({ onLogout, visible }) => {
     link.click();
   };
 
+  // const columns = [
+  //   { title: 'Reference Number', dataIndex: 'number', key: 'number' },
+  //   { title: 'First Name', dataIndex: 'firstName', key: 'firstName' },
+  //   { title: 'Last Name', dataIndex: 'lastName', key: 'lastName' },
+  //   { title: 'Address', dataIndex: 'address', key: 'address' },
+  //   { title: 'Phone Number', dataIndex: 'phone', key: 'phone' },
+  //   { title: 'Total Hectares Owned', dataIndex: 'hectaresOwned', key: 'hectaresOwned' },
+  //   {
+  //     title: 'Actions',
+  //     dataIndex: 'actions',
+  //     key: 'actions',
+  //     render: (_, record) => (
+  //       <Button type="primary" danger onClick={() => handleRemoveClick(record)}>Remove</Button>
+  //     ),
+  //   },
+  // ];
+
   const columns = [
-    { title: 'Reference Number', dataIndex: 'number', key: 'number' },
-    { title: 'Full Name', dataIndex: 'fullName', key: 'fullName' },
-    { title: 'Address', dataIndex: 'address', key: 'address' },
-    { title: 'Phone Number', dataIndex: 'phone', key: 'phone' },
-    { title: 'Total Hectares Owned', dataIndex: 'hectaresOwned', key: 'hectaresOwned' },
+    { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber' },
+    { title: 'First Name', render: (data) => (data?.userInfo.firstname), key: 'username' },
+    { title: 'Last Name', render: (data) => (data?.userInfo.lastname), key: 'lastname' },
+    { title: 'Address', render: (data) => (data?.address), key: 'Address' },
+    { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber' },
+    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned' },
     {
       title: 'Actions',
       dataIndex: 'actions',
       key: 'actions',
       render: (_, record) => (
+        <>
+        <Button type="primary" onClick={() => handleEditClick(record)}>Edit</Button>
         <Button type="primary" danger onClick={() => handleRemoveClick(record)}>Remove</Button>
+        </>
       ),
     },
   ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider >
+           <Sider style={{ position: 'fixed', height: '100vh' }}>
       <Space >
       <img src="logo-leaf.png" alt="Logo" style={{ height: 50, marginTop:10, marginLeft: 5 }} />
       <Title level={2} style={{color:'white'}}>Agrimap</Title>
@@ -137,7 +192,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         <br />
         <br />
         <h2 style={{ height: '32px', margin: '16px', color: 'white' }}>Dashboard</h2>
-        <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
+        <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" >
           <Menu.Item icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
           </Menu.Item>
@@ -152,40 +207,50 @@ const DashboardPage = ({ onLogout, visible }) => {
           </Menu.Item>
         </Menu>
       </Sider>
-      <Layout className="site-layout">
+      <Layout className="site-layout" style={{ marginLeft: 200 }}>
         {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
         <Content style={{ margin: '16px' }}>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
             {showFarmersTable && (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 style={{ marginRight: '16px' }}>List of Farmers</h3>
+                <Title level={3} >List of Farmers</Title>
                   <div style={{ marginLeft: 'auto' }}>
                     <Button style={{ marginRight: '8px' }} onClick={handleAddClick}>Add</Button>
                   </div>
                 </div>
-                <Table dataSource={farmers} columns={columns} />
+                {/* <Table dataSource={farmers} columns={columns} /> */}
+                <Table dataSource={data} columns={columns} />
               </>
             )}
-            {showStats && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 style={{ marginRight: '16px' }}>Statistics Report</h3>
-                  <div style={{ marginLeft: 'auto' }}>
-                    <Button style={{ marginRight: '8px' }}>Upload</Button>
-                    <Button onClick={handlePrint}>Download</Button>
-                  </div>
+         {showStats && (
+            <>
+            <Card>
+              <Title level={3} >Analytics</Title>
+              {renderChart()}
+              </Card>
+              <br/>
+            <Card>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+              <Title level={3} >Statistics Report</Title>
+                <div style={{ marginLeft: 'auto' }}>
+                  <Button style={{ marginRight: '8px' }} disabled>Upload</Button>
+                  <Button type='primary' onClick={handlePrint}>Download</Button>
                 </div>
-                <Table id="statsTable"  dataSource={stats}>
-                  <Table.Column title="Reference Number" dataIndex="number" key="number" />
-                  <Table.Column title="Last Name" dataIndex="last" key="last" />
-                  <Table.Column title="First Name" dataIndex="first" key="first" />
-                  <Table.Column title="Middle Name" dataIndex="middle" key="middle" />
-                  <Table.Column title="Total Hectares" dataIndex="hectaresOwned" key="hectaresOwned" />
-                </Table>
-              </>
-            )}
-          </div>
+              </div>
+              <Table id="statsTable" dataSource={stats}>
+                <Table.Column title="Reference Number" dataIndex="number" key="number" />
+                <Table.Column title="First Name" dataIndex="firstName" key="firstName" />
+                <Table.Column title="Last Name" dataIndex="lastName" key="lastName" />
+                <Table.Column title="Address" dataIndex="address" key="address" />
+                <Table.Column title="Phone Number" dataIndex="phone" key="phone" />
+                <Table.Column title="Total Hectares" dataIndex="hectaresOwned" key="hectaresOwned" />
+              </Table>
+              </Card>
+            
+            </>
+          )}
+        </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Agrimap ©2023</Footer>
       </Layout>
@@ -193,18 +258,21 @@ const DashboardPage = ({ onLogout, visible }) => {
 
       <Modal
         title="Add Farmer"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
       >
         <Form onFinish={handleModalSubmit}>
-          <Form.Item label="Reference Number" name="DA_referenceNumber" rules={[{ required: true }]}>
+          <Form.Item label="Reference Number" name="referenceNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Full Name" name="fullName" rules={[{ required: true }]}>
+          <Form.Item label="First Name" name="username" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+          <Form.Item label="Last Name" name="lastname" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Address" name="Address" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
