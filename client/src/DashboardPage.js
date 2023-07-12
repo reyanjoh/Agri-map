@@ -58,20 +58,20 @@ const DashboardPage = ({ onLogout, visible }) => {
   // bar graph for statistics/analytics
   const renderChart = () => {
     return (
-      <BarChart width={1100} height={300} data={stats}>
+      <BarChart width={1100} height={300} data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="number" />
+        <XAxis dataKey="DA_referenceNumber" />
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey="hectaresOwned" fill="#75AA3F" />
+        <Bar dataKey="totalHectaresOwned" fill="#75AA3F" />
       </BarChart>
     );
   };
 
   const handleModalSubmit = (values) => {
     const newFarmer = {
-      referenceNumber: values.referenceNumber,
+      referenceNumber: values.DA_referenceNumber,
       username: values.username,
       lastname: values.lastname,
       address: values.address,
@@ -91,14 +91,14 @@ const DashboardPage = ({ onLogout, visible }) => {
   const handleStatsClick = () => {
     setShowStats(true);
     setShowFarmersTable(false);
-    setStats([
-      {number: '10-13-07-014-000076',firstName: 'Cresente', lastName: 'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 3 },
-      {number: '10-13-07-014-000165',firstName: 'Juanito', lastName:'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-      {number: '10-13-07-014-000159',firstName: 'Mercidita', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-      {number: '10-13-07-014-000160',firstName: 'Romel', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-      {number: '10-13-07-014-000106',firstName: 'Jerson' ,lastName:'Adami', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 0.5 },
-      {number: '10-13-07-014-000083',firstName: 'Rosario', lastName: 'Albino', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-    ]);
+    // setStats([
+    //   {number: '10-13-07-014-000076',firstName: 'Cresente', lastName: 'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 3 },
+    //   {number: '10-13-07-014-000165',firstName: 'Juanito', lastName:'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
+    //   {number: '10-13-07-014-000159',firstName: 'Mercidita', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
+    //   {number: '10-13-07-014-000160',firstName: 'Romel', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
+    //   {number: '10-13-07-014-000106',firstName: 'Jerson' ,lastName:'Adami', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 0.5 },
+    //   {number: '10-13-07-014-000083',firstName: 'Rosario', lastName: 'Albino', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
+    // ]);
   };
 
   useEffect(() => {
@@ -218,15 +218,18 @@ const DashboardPage = ({ onLogout, visible }) => {
         </Menu>
       </Sider>
       <Layout className="site-layout" style={{ marginLeft: 200 }}>
+      {/* <Title level={4} style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginRight: 45}}>Welcome, Admin</Title> */}
         {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
         <Content style={{ margin: '16px' }}>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
+
             {showFarmersTable && (
               <>
+            <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                 <Title level={3} >List of Farmers</Title>
                   <div style={{ marginLeft: 'auto' }}>
-                    <Button style={{ marginRight: '8px' }} onClick={handleAddClick}>Add</Button>
+                    <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add</Button>
                   </div>
                 </div>
                 {/* <Table dataSource={farmers} columns={columns} /> */}
@@ -234,6 +237,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           total: meta?.total ? meta?.total : 0,
           pageSize: 5,
         }}/>
+              </Card>
               </>
             )}
          {showStats && (
@@ -254,9 +258,9 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Table id="statsTable" dataSource={data} pagination={{
               total: meta?.total ? meta?.total : 0,
               pageSize: 5,}}>
-                <Table.Column title="Reference Number" dataIndex="DA_referenceNumber" key="referenceNumber" />
-                <Table.Column title="First Name" dataIndex="username" key="username" />
-                <Table.Column title="Last Name" dataIndex="lastname" key="lastname" />
+                <Table.Column title="Reference Number" dataIndex="DA_referenceNumber" key="referenceNumber"  />
+                <Table.Column title="First Name" key="username" render={(data) => (data?.userInfo.firstname)} />
+                <Table.Column title="Last Name" key="lastname" render={(data) => (data?.userInfo.lastname)} />
                 <Table.Column title="Address" dataIndex="address" key="address" />
                 <Table.Column title="Phone Number" dataIndex="phoneNumber" key="phoneNumber" />
                 <Table.Column title="Total Hectares Owned" dataIndex="totalHectaresOwned" key="totalHectaresOwned"align='center' />
