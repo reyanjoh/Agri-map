@@ -1,10 +1,10 @@
-import React, { useState, useEffect} from 'react';
+import { useState, useEffect, useRef } from "react";
 import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space, Card, Popconfirm } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-
+import { parseISO, format } from 'date-fns';
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 const { Title, Text } = Typography;
@@ -16,6 +16,23 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [showStats, setShowStats] = useState(false); 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showFarmersTable, setShowFarmersTable] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [typeError, setTypeError] = useState(null);
+  const [excelData, setExcelData] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // data storage
+  // const getExcelDataFromStorage = () => {
+  //   const storedData = localStorage.getItem('excelData');
+  //   if (storedData) {
+  //     return JSON.parse(storedData);
+  //   }
+  //   return null;
+  // };
+
+  // const [excelData, setExcelData] = useState(getExcelDataFromStorage());
+  // submit state
+  // const [excelData, setExcelData] = useState(null);
 
   const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
   console.log(data);
@@ -24,6 +41,12 @@ const DashboardPage = ({ onLogout, visible }) => {
     localStorage.removeItem('userName');
     localStorage.removeItem('userRole');
     onLogout();
+  };
+
+  // Helper function to convert Excel date value to a readable format
+  const formatDate = (excelDate) => {
+    const date = new Date(Math.round((excelDate - 25569) * 86400 * 1000));
+    return date.toLocaleDateString();
   };
 
   const handleAddClick = () => {
@@ -35,39 +58,34 @@ const DashboardPage = ({ onLogout, visible }) => {
     setFarmers(updatedFarmers);
   };
 
-  // const handleEditClick = (record) => {
-  //   // Logic for handling the edit action
-  //   const updatedFarmers = farmers.map((farmer) => {
-  //     if (farmer.number === record.number) {
-  //       // Perform the necessary edits to the farmer object
-  //       // For example, you can update the farmer's name:
-  //       const updatedFarmer = { ...farmer, name: 'Updated Name' };
-  //       return updatedFarmer;
-  //     }
-  //     return farmer;
-  //   });
-  
-  //   setFarmers(updatedFarmers);
-  // };
-  
+  const removeFile = () => {
+    setExcelFile(null);
+    setTypeError(null);
+    setExcelData([]);
+    localStorage.removeItem("uploadedExcelData");
+    // Reset file input value
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleModalCancel = () => {
     setIsModalVisible(false);
   };
 
   // bar graph for statistics/analytics
-  const renderChart = () => {
-    return (
-      <BarChart width={1100} height={300} data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="DA_referenceNumber" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="totalHectaresOwned" fill="#75AA3F" />
-      </BarChart>
-    );
-  };
+  // const renderChart = () => {
+  //   return (
+  //     <BarChart width={1100} height={300} data={data}>
+  //       <CartesianGrid strokeDasharray="3 3" />
+  //       <XAxis dataKey="DA_referenceNumber" />
+  //       <YAxis />
+  //       <Tooltip />
+  //       <Legend />
+  //       <Bar dataKey="totalHectaresOwned" fill="#75AA3F" />
+  //     </BarChart>
+  //   );
+  // };
 
   const handleModalSubmit = (values) => {
     const newFarmer = {
@@ -91,14 +109,6 @@ const DashboardPage = ({ onLogout, visible }) => {
   const handleStatsClick = () => {
     setShowStats(true);
     setShowFarmersTable(false);
-    // setStats([
-    //   {number: '10-13-07-014-000076',firstName: 'Cresente', lastName: 'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 3 },
-    //   {number: '10-13-07-014-000165',firstName: 'Juanito', lastName:'Abonero', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-    //   {number: '10-13-07-014-000159',firstName: 'Mercidita', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-    //   {number: '10-13-07-014-000160',firstName: 'Romel', lastName: 'Acuram', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-    //   {number: '10-13-07-014-000106',firstName: 'Jerson' ,lastName:'Adami', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 0.5 },
-    //   {number: '10-13-07-014-000083',firstName: 'Rosario', lastName: 'Albino', address:"Malaybalay City, Philippines", phone:"09123456789",hectaresOwned: 1 },
-    // ]);
   };
 
   useEffect(() => {
@@ -113,55 +123,94 @@ const DashboardPage = ({ onLogout, visible }) => {
     localStorage.setItem('farmers', JSON.stringify(farmers));
   }, [farmers]);
 
-  // export to excel
-  const handlePrint = () => {
-    const printContent = document.getElementById('statsTable');
+  useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem("uploadedExcelData"));
+    if (storedData) {
+      setExcelData(storedData);
+    }
+  }, []);
 
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.table_to_sheet(printContent);
 
-    const columnWidths = [
-      { wch: 20 }, // Column A
-      { wch: 20 }, // Column B
-      { wch: 20 }, // Column C
-      { wch: 20 }, // Column D
-      { wch: 20 }, // Column E
-    ];
-    worksheet['!cols'] = columnWidths;
+  // submit
+  const handleFileSubmit = (e) => {
+    e.preventDefault();
+    if (excelFile !== null) {
+      const workbook = XLSX.read(excelFile, { type: 'buffer' });
+      const worksheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[worksheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
 
-    const currentDate = new Date();
-    const options = { year: 'numeric', month: 'short', day: '2-digit' };
-    const dateString = currentDate.toLocaleDateString('en-US', options).replace('-');
+      // Convert date values to readable format
+      const formattedData = data.map((row) => {
+        const formattedRow = {};
+        for (let key in row) {
+          if (row.hasOwnProperty(key) && row[key] instanceof Date) {
+            formattedRow[key] = formatDate(row[key]);
+          } else {
+            formattedRow[key] = row[key];
+          }
+        }
+        return formattedRow;
+      });
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Statistics-Report-${dateString}`);
-
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-
-    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Statistics-Report-${dateString}.xlsx`;
-    link.click();
+      setExcelData(formattedData.slice(0, 10));
+      localStorage.setItem("uploadedExcelData", JSON.stringify(formattedData));
+    }
   };
 
-  // const columns = [
-  //   { title: 'Reference Number', dataIndex: 'number', key: 'number' },
-  //   { title: 'First Name', dataIndex: 'firstName', key: 'firstName' },
-  //   { title: 'Last Name', dataIndex: 'lastName', key: 'lastName' },
-  //   { title: 'Address', dataIndex: 'address', key: 'address' },
-  //   { title: 'Phone Number', dataIndex: 'phone', key: 'phone' },
-  //   { title: 'Total Hectares Owned', dataIndex: 'hectaresOwned', key: 'hectaresOwned' },
-  //   {
-  //     title: 'Actions',
-  //     dataIndex: 'actions',
-  //     key: 'actions',
-  //     render: (_, record) => (
-  //       <Button type="primary" danger onClick={() => handleRemoveClick(record)}>Remove</Button>
-  //     ),
-  //   },
-  // ];
+  // onchange event
+  const handleFile = (e) => {
+    let fileTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
+    let selectedFile = e.target.files[0];
+    if (selectedFile) {
+      if (selectedFile && fileTypes.includes(selectedFile.type)) {
+        setTypeError(null);
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(selectedFile);
+        reader.onload = (e) => {
+          setExcelFile(e.target.result);
+        };
+      } else {
+        setTypeError('Please select only excel file types');
+        setExcelFile(null);
+      }
+    } else {
+      console.log('Please select your file');
+    }
+  };
+
+  // revise
+  const handlePrint = () => {
+    if (excelData) {
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+  
+      const columnWidths = [
+        { wch: 20 }, // Column A
+        { wch: 20 }, // Column B
+        { wch: 20 }, // Column C
+        { wch: 20 }, // Column D
+        { wch: 20 }, // Column E
+      ];
+      worksheet['!cols'] = columnWidths;
+  
+      const currentDate = new Date();
+      const options = { year: 'numeric', month: 'short', day: '2-digit' };
+      const dateString = currentDate.toLocaleDateString('en-US', options).replace('-', '');
+  
+      XLSX.utils.book_append_sheet(workbook, worksheet, `Statistics-Report-${dateString}`);
+  
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  
+      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Statistics-Report-${dateString}.xlsx`;
+      link.click();
+    }
+  };
 
   const columns = [
     { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber' },
@@ -197,13 +246,13 @@ const DashboardPage = ({ onLogout, visible }) => {
            <Sider style={{ position: 'fixed', height: '100vh' }}>
       <Space >
       <img src="logo-leaf.png" alt="Logo" style={{ height: 50, marginTop:10, marginLeft: 5 }} />
-      <Title level={2} style={{color:'white'}}>Agrimap</Title>
+      <Title level={2} style={{color:'white', marginTop:'25px'}}>Agrimap</Title>
     </Space>
         <br />
         <br />
         <h2 style={{ height: '32px', margin: '16px', color: 'white' }}>Dashboard</h2>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" >
-          <Menu.Item icon={<TeamOutlined />} onClick={handleFarmersClick}>
+          <Menu.Item key='1' icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
           </Menu.Item>
           <Menu.Item icon={<LineChartOutlined />} disabled>
@@ -218,9 +267,6 @@ const DashboardPage = ({ onLogout, visible }) => {
         </Menu>
       </Sider>
       <Layout className="site-layout" style={{ marginLeft: 200 }}>
-      {/* <Title level={4} style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginRight: 45}}>Welcome, Admin</Title> */}
-        {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
-        <Content style={{ margin: '16px' }}>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
 
             {showFarmersTable && (
@@ -232,7 +278,6 @@ const DashboardPage = ({ onLogout, visible }) => {
                     <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add</Button>
                   </div>
                 </div>
-                {/* <Table dataSource={farmers} columns={columns} /> */}
                 <Table dataSource={data} columns={columns} pagination={{
           total: meta?.total ? meta?.total : 0,
           pageSize: 5,
@@ -242,38 +287,61 @@ const DashboardPage = ({ onLogout, visible }) => {
             )}
          {showStats && (
             <>
-            <Card>
-              <Title level={3} >Analytics</Title>
-              {renderChart()}
-              </Card>
               <br/>
-            <Card>
+              <Card>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
               <Title level={3} >Statistics Report</Title>
                 <div style={{ marginLeft: 'auto' }}>
-                  <Button style={{ marginRight: '8px' }} disabled>Upload</Button>
-                  <Button type='primary' onClick={handlePrint}>Download</Button>
+              {excelData && (
+              <button className="btn btn-primary btn-sm" onClick={handlePrint}>Download</button>
+            )}
                 </div>
               </div>
-              <Table id="statsTable" dataSource={data} pagination={{
-              total: meta?.total ? meta?.total : 0,
-              pageSize: 5,}}>
-                <Table.Column title="Reference Number" dataIndex="DA_referenceNumber" key="referenceNumber"  />
-                <Table.Column title="First Name" key="username" render={(data) => (data?.userInfo.firstname)} />
-                <Table.Column title="Last Name" key="lastname" render={(data) => (data?.userInfo.lastname)} />
-                <Table.Column title="Address" dataIndex="address" key="address" />
-                <Table.Column title="Phone Number" dataIndex="phoneNumber" key="phoneNumber" />
-                <Table.Column title="Total Hectares Owned" dataIndex="totalHectaresOwned" key="totalHectaresOwned"align='center' />
-              </Table>
-              </Card>
+        <form className="form-group custom-form" onSubmit={handleFileSubmit}>
+        <Space >
+          <input ref={fileInputRef}  type="file" className="form-control" required onChange={handleFile} />
+          <Button type="primary" value='small' htmlType="submit">Upload</Button>
+          <Button type='primary' value='small' danger onClick={removeFile}>Remove</Button>
+          </Space>
+          {typeError&&(
+            <div className="alert alert-danger" role="alert">{typeError}</div>
+          )}
+        </form>
+        <br/>
+        <br/>
+        {excelData && excelData.length > 0 ? (
+            <table className="table">
+             <thead>
+                <tr>
+                  {Object.keys(excelData[0]).map((key) => (
+                    <th key={key}>{key}</th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {excelData.map((individualExcelData, index) => (
+                  <tr key={index}>
+                    {Object.keys(individualExcelData).map((key) => (
+                      <td key={key}>{individualExcelData[key]}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+        ):(
+          <div>No File is uploaded yet!</div>
+        )}
+          </Card>
+
             </>
           )}
         </div>
-        </Content>
-        <Footer style={{ textAlign: 'center' }}>Agrimap ©2023</Footer>
+        <Footer style={{position: 'fixed', bottom: 0, marginLeft:'520px' }}>
+  <      div>Agrimap ©2023</div>
+        </Footer>
       </Layout>
-
-
+    
       <Modal
         title="Add Farmer"
         open={isModalVisible}
