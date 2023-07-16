@@ -123,6 +123,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     localStorage.setItem('farmers', JSON.stringify(farmers));
   }, [farmers]);
 
+  // local
   useEffect(() => {
     const storedData = JSON.parse(localStorage.getItem("uploadedExcelData"));
     if (storedData) {
