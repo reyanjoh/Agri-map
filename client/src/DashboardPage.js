@@ -123,7 +123,6 @@ const DashboardPage = ({ onLogout, visible }) => {
     localStorage.setItem('farmers', JSON.stringify(farmers));
   }, [farmers]);
 
-  // localstorage
   useEffect(() => {
     const storedData = JSON.parse(localStorage.getItem("uploadedExcelData"));
     if (storedData) {
@@ -180,7 +179,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     }
   };
 
-  // revise download file
+  // revise
   const handlePrint = () => {
     if (excelData) {
       const workbook = XLSX.utils.book_new();

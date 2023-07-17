@@ -52,6 +52,7 @@ const LoginPage = () => {
     <div className="login-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh',  backgroundColor:'#B1CE44' }}>
       <Card style={{ borderRadius: 10, width: 400, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          {/* for logo */}
           <img src='agrimap.png' alt="Logo" style={{ height: 130 }} />
         </div>
 
