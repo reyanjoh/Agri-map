@@ -4,14 +4,10 @@ const DB = process.env.DB || 'mongodb://0.0.0.0:27017/agriMap';
 
 
 const express = require('express');
-const router = express.Router();
 const app = express();
 const mongoose = require('mongoose');
-const cors = require('cors');
-
 app.use(express.json());
-app.use('/.netlify/functions/api', router)
-
+const cors = require('cors');
 
 app.use(
   cors({
