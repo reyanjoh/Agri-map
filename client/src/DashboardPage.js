@@ -80,7 +80,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
     console.log(newFarmer);
 
-    fetch('https://localhost:5001/farmers/add-farmer', {
+    fetch('https://agri-map.onrender.com/farmers/add-farmer', {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(newFarmer)
@@ -106,7 +106,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       firstname: values.firstname,
     };
 
-    fetch('http://localhost:5001/add-user', {
+    fetch('https://agri-map.onrender.com/add-user', {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(newUser)
