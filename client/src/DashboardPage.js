@@ -71,11 +71,11 @@ const DashboardPage = ({ onLogout, visible }) => {
   const handleModalSubmit = (values) => {
     const newFarmer = {
       DA_referenceNumber: values.DA_referenceNumber,
-      username: values.username,
-      lastname: values.lastname,
+      userInfo: values.userId,
       address: values.address,
       phoneNumber: values.phoneNumber,
       totalHectaresOwned: values.totalHectaresOwned,
+      proofOfOwnership: values.proofOfOwnership
     };
 
     console.log(newFarmer);
@@ -456,10 +456,8 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Reference Number" name="DA_referenceNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="First Name" name="firstname" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Last Name" name="lastname" rules={[{ required: true }]}>
+          
+          <Form.Item label="User ID" name="userId" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Address" name="address" rules={[{ required: true }]}>
@@ -471,11 +469,15 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Total Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Proof Of Ownership" name="proofOfOwnership">
+
+          <Form.Item label="Proof Of Ownership (drive link)" name="proofOfOwnership" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          {/* <Form.Item label="Proof Of Ownership" name="proofOfOwnership">
             <Upload>
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
             </Upload>
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Add
