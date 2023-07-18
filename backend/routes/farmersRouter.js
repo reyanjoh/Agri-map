@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router();
 
 const Farmer = require('../models/farmerSchema')
+const Users = require('../models/userSchema')
+
 
 router.get('/view-all', (req, res) => {
     Farmer.find()
@@ -12,6 +14,14 @@ router.get('/view-all', (req, res) => {
 
 
 router.post('/add-farmer', (req, res) => {
+
+    const user = Users.find({
+        firstname : req.body.firstname,
+        lastname: req.body.lastname
+    })
+
+    console.log(user);
+
     const newFarmer = new Farmer({
 
         userInfo: req.body.userInfo,

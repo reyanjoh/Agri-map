@@ -30,7 +30,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
 
   const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
-  console.log(data);
+  // console.log(data);
 
   const handleLogout = () => {
     localStorage.removeItem('userName');
@@ -70,13 +70,29 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   const handleModalSubmit = (values) => {
     const newFarmer = {
-      referenceNumber: values.DA_referenceNumber,
+      DA_referenceNumber: values.DA_referenceNumber,
       username: values.username,
       lastname: values.lastname,
       address: values.address,
       phoneNumber: values.phoneNumber,
       totalHectaresOwned: values.totalHectaresOwned,
     };
+
+    console.log(newFarmer);
+
+    fetch('https://localhost:5001/farmers/add-farmer', {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify(newFarmer)
+    }).then( res => res.json())
+    .then(data => {
+      console.log(data);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
     setFarmers([...farmers, newFarmer]);
     setIsModalVisible(false);
     setShowFarmersTable(true);
@@ -85,9 +101,24 @@ const DashboardPage = ({ onLogout, visible }) => {
   const handleAddUser = (values) => {
     const newUser = {
       username: values.Username,
+      password: values.password,
       lastname: values.LastName,
       firstname: values.FirstName,
     };
+
+    fetch('https://localhost:5001/farmers/add-farmer', {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify(newUser)
+    }).then( res => res.json())
+    .then(data => {
+      console.log(`added ${data}`);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
     setUsers([...users, newUser]);
     setIsAddUserModalVisible(false);
     setShowUsersTable(true);
@@ -109,20 +140,27 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowUsersTable(false);
   };
   
-  const handleUsersClick = () => {
+  const handleUsersClick = async ()  => {
+
+    const users = await fetch(`https://agri-map.onrender.com/view-all`)
+    const JsonUsers = await users.json()
+
+    console.log(JsonUsers);
+    setUsers(JsonUsers);
+
     setShowUsersTable(true);
     setShowStats(false);
     setShowFarmersTable(false);
   };
   
-  useEffect(() => {
-    const savedFarmers = localStorage.getItem('farmers');
-    if (savedFarmers) {
-      setFarmers(JSON.parse(savedFarmers));
-      setShowFarmersTable(true);
+  // useEffect(() => {
+  //   const savedFarmers = localStorage.getItem('farmers');
+  //   if (savedFarmers) {
+  //     setFarmers(JSON.parse(savedFarmers));
+  //     setShowFarmersTable(true);
 
-    }
-  }, []);
+  //   }
+  // }, []);
 
   useEffect(() => {
     localStorage.setItem('farmers', JSON.stringify(farmers));
@@ -370,7 +408,9 @@ const DashboardPage = ({ onLogout, visible }) => {
                   total: meta?.total ? meta?.total : 0,
                   pageSize: 5,
                 }}>
-                  <Column title="Username" dataIndex="username" key="username" />
+                  
+                  <Column title="ID" dataIndex="_id" key="_id" />
+                  {/* <Column title="Username" dataIndex="username" key="username" /> */}
                   <Column title="Last Name" dataIndex="lastname" key="lastname" />
                   <Column title="First Name" dataIndex="firstname" key="firstname" />
                   <Column
@@ -414,7 +454,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Reference Number" name="DA_referenceNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="First Name" name="username" rules={[{ required: true }]}>
+          <Form.Item label="First Name" name="firstname" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Last Name" name="lastname" rules={[{ required: true }]}>
@@ -448,19 +488,25 @@ const DashboardPage = ({ onLogout, visible }) => {
         footer={null}
       >
         <Form onFinish={handleAddUser}>
-          <Form.Item label="Username" name="Username">
+          <Form.Item label="Username" name="username">
             <Input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
           </Form.Item>
-          <Form.Item label="Last Name" name="LastName">
+          <Form.Item label="Password" name="password">
+            <Input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item label="Last Name" name="lastname">
             <Input
               value={lastname}
               onChange={(e) => setLastname(e.target.value)}
             />
           </Form.Item>
-          <Form.Item label="First Name" name="FirstName">
+          <Form.Item label="First Name" name="firstname">
             <Input
               value={firstname}
               onChange={(e) => setFirstname(e.target.value)}
