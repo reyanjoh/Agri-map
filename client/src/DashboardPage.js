@@ -100,13 +100,13 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   const handleAddUser = (values) => {
     const newUser = {
-      username: values.Username,
+      username: values.username,
       password: values.password,
-      lastname: values.LastName,
-      firstname: values.FirstName,
+      lastname: values.lastname,
+      firstname: values.firstname,
     };
 
-    fetch('https://localhost:5001/farmers/add-farmer', {
+    fetch('http://localhost:5001/add-user', {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(newUser)
@@ -124,9 +124,11 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowUsersTable(true);
   };
 
-  const handleRemoveUser = (username) => {
-    const updatedUsers = users.filter((user) => user.username !== username);
-    setUsers(updatedUsers);
+  const handleRemoveUser = (user_id) => {
+
+    // console.log(user_id);
+    // const updatedUsers = users.filter((user) => user.username !== username);
+    // setUsers(updatedUsers);
   };
 
   const handleStatsClick = () => {
@@ -423,7 +425,7 @@ const DashboardPage = ({ onLogout, visible }) => {
                           title="Are you sure?"
                           okText="Yes"
                           cancelText="No"
-                          onConfirm={() => handleRemoveUser(user.username)}
+                          onConfirm={() => handleRemoveUser(user._id)}
                         >
                           <Text type="danger" style={{ cursor: 'pointer' }}>
                             Remove
@@ -500,18 +502,19 @@ const DashboardPage = ({ onLogout, visible }) => {
               onChange={(e) => setUsername(e.target.value)}
             />
           </Form.Item>
-          <Form.Item label="Last Name" name="lastname">
-            <Input
-              value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-            />
-          </Form.Item>
           <Form.Item label="First Name" name="firstname">
             <Input
               value={firstname}
               onChange={(e) => setFirstname(e.target.value)}
             />
           </Form.Item>
+          <Form.Item label="Last Name" name="lastname">
+            <Input
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
+            />
+          </Form.Item>
+          
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Add

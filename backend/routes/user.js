@@ -50,4 +50,16 @@ router.get('/view-all', (req, res) => {
 })
 
 
+router.delete('delete-user/:id', (req, res) =>{
+    User.deleteOne({_id: ObjectId(req.params.id)})
+    .then(result =>{
+        console.log(result);
+        res.status(200).json(result)
+    })
+    .catch(e => {
+        console.log(e);
+    })
+})
+
+
 module.exports = router;
