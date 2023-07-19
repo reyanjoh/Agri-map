@@ -7,7 +7,12 @@ import useFetch from './util/useFetch';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { parseISO, format } from 'date-fns';
 
-const server = process.env.REACT_APP_SERVER || 'http://localhost:5001'
+let environment = 'LOCAL';
+let server;
+
+environment === 'LOCAL' ? server = 'http://localhost:5001' : server = process.env.REACT_APP_SERVER;
+console.log(server);
+
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -33,7 +38,6 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
 
   const { data, loading, err } = useFetch(`${server}/farmers/view-all`);
-  console.log(server); 
 
   const handleLogout = () => {
     localStorage.removeItem('userName');
@@ -296,6 +300,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   const columns = [
+    { title: 'ID', render: (data) => (data?._id), key: '_id' },
     { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber' },
     { title: 'First Name', render: (data) => (data?.userInfo.firstname), key: 'username' },
     { title: 'Last Name', render: (data) => (data?.userInfo.lastname), key: 'lastname' },
