@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space, Card, Popconfirm } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
@@ -5,6 +6,8 @@ import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { parseISO, format } from 'date-fns';
+
+const server = process.env.REACT_APP_SERVER || 'http://localhost:5001'
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -29,8 +32,8 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [users, setUsers] = useState([]); // Store the user data
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
 
-  const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
-  // console.log(data);
+  const { data, loading, err } = useFetch(`${server}/farmers/view-all`);
+  console.log(server); 
 
   const handleLogout = () => {
     localStorage.removeItem('userName');
@@ -51,7 +54,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const handleRemoveClick = (record) => {
     console.log(record._id);
 
-    fetch(`https://agri-map.onrender.com/farmers/delete-farmer/${record._id}`, {
+    fetch(`${server}/farmers/delete-farmer/${record._id}`, {
       method: 'DELETE', 
     })
     .then( res => res.json())
@@ -94,7 +97,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
     console.log(newFarmer);
 
-    fetch('https://agri-map.onrender.com/farmers/add-farmer', {
+    fetch(`${server}/farmers/add-farmer`, {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(newFarmer)
@@ -120,7 +123,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       firstname: values.firstname,
     };
 
-    fetch('https://agri-map.onrender.com/add-user', {
+    fetch(`${server}/add-user`, {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(newUser)
@@ -140,7 +143,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   const handleRemoveUser = (_id) => {
     console.log(_id);
-    fetch(`https://agri-map.onrender.com/delete-user/${_id}`, {
+    fetch(`${server}/delete-user/${_id}`, {
       method: 'DELETE', 
     })
     .then( res => res.json())
@@ -166,7 +169,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   
   const handleUsersClick = async ()  => {
 
-    const users = await fetch(`https://agri-map.onrender.com/view-all`)
+    const users = await fetch(`${server}/view-all`)
     const JsonUsers = await users.json()
 
     console.log(JsonUsers);
