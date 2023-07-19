@@ -53,15 +53,20 @@ router.get('/view-all', (req, res) => {
 
 
 router.delete('/delete-user/:_id', async (req, res) =>{
-    Farmer.deleteOne({ userInfo:req.params })
-    .then(data =>{
-        console.log(data);
-    })
     
-    // if(Farmer.findOne(req.params)){
-        
-    // }
-    // console.log(req.params);
+    
+    Farmer.findOne({ userInfo: req.params })
+    .then(data =>{
+        if (data) {
+            Farmer.deleteOne({ userInfo:req.params })
+            .then(data =>{
+                console.log(data);
+            })
+        }else{
+            console.log("no farmer found");
+        }
+    })
+
     User.deleteOne(req.params)
     .then(result =>{
         console.log(result);
