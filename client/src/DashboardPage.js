@@ -49,8 +49,22 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   const handleRemoveClick = (record) => {
-    const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
-    setFarmers(updatedFarmers);
+    console.log(record._id);
+
+    fetch(`https://agri-map.onrender.com/farmers/delete-farmer/${record._id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    // const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
+    // setFarmers(updatedFarmers);
   };
 
   const removeFile = () => {
@@ -124,11 +138,19 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowUsersTable(true);
   };
 
-  const handleRemoveUser = (user_id) => {
+  const handleRemoveUser = (_id) => {
+    console.log(_id);
+    fetch(`https://agri-map.onrender.com/delete-user/${_id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
 
-    // console.log(user_id);
-    // const updatedUsers = users.filter((user) => user.username !== username);
-    // setUsers(updatedUsers);
+    })
+    .catch((e) => {
+      return(e)
+    })
   };
 
   const handleStatsClick = () => {
