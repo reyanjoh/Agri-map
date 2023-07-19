@@ -124,11 +124,19 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowUsersTable(true);
   };
 
-  const handleRemoveUser = (user_id) => {
+  const handleRemoveUser = (_id) => {
+    console.log(_id);
+    fetch(`http://localhost:5001/delete-user/${_id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
 
-    // console.log(user_id);
-    // const updatedUsers = users.filter((user) => user.username !== username);
-    // setUsers(updatedUsers);
+    })
+    .catch((e) => {
+      return(e)
+    })
   };
 
   const handleStatsClick = () => {

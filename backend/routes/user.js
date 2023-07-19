@@ -3,6 +3,8 @@ const router = express.Router();
 
 const User = require('../models/userSchema');
 const userRole = require('../models/userRoleSchema');
+const Farmer = require('../models/farmerSchema');
+
 
 router.post('/login', (req, res) =>{
     User.findOne({
@@ -50,8 +52,17 @@ router.get('/view-all', (req, res) => {
 })
 
 
-router.delete('delete-user/:id', (req, res) =>{
-    User.deleteOne({_id: ObjectId(req.params.id)})
+router.delete('/delete-user/:_id', async (req, res) =>{
+    Farmer.deleteOne({ userInfo:req.params })
+    .then(data =>{
+        console.log(data);
+    })
+    
+    // if(Farmer.findOne(req.params)){
+        
+    // }
+    // console.log(req.params);
+    User.deleteOne(req.params)
     .then(result =>{
         console.log(result);
         res.status(200).json(result)
