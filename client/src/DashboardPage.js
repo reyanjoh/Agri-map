@@ -51,7 +51,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const handleRemoveClick = (record) => {
     console.log(record._id);
 
-    fetch(`http://localhost:5001/farmers/delete-farmer/${record._id}`, {
+    fetch(`https://agri-map.onrender.com/farmers/delete-farmer/${record._id}`, {
       method: 'DELETE', 
     })
     .then( res => res.json())
@@ -140,7 +140,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   const handleRemoveUser = (_id) => {
     console.log(_id);
-    fetch(`http://localhost:5001/delete-user/${_id}`, {
+    fetch(`https://agri-map.onrender.com/delete-user/${_id}`, {
       method: 'DELETE', 
     })
     .then( res => res.json())
