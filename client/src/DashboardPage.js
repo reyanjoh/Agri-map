@@ -49,8 +49,22 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   const handleRemoveClick = (record) => {
-    const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
-    setFarmers(updatedFarmers);
+    console.log(record._id);
+
+    fetch(`http://localhost:5001/farmers/delete-farmer/${record._id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    // const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
+    // setFarmers(updatedFarmers);
   };
 
   const removeFile = () => {
