@@ -36,6 +36,8 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [firstname, setFirstname] = useState('');
   const [users, setUsers] = useState([]); // Store the user data
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
+  const [showland, setShowland] = useState(false);
+
 
   const { data, loading, err } = useFetch(`${server}/farmers/view-all`);
 
@@ -164,11 +166,19 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowStats(true);
     setShowFarmersTable(false);
     setShowUsersTable(false);
+    setShowland(false);
   };
   const handleFarmersClick = () => {
     setShowFarmersTable(true);
     setShowStats(false);
     setShowUsersTable(false);
+    setShowland(false);
+  };
+
+  const handleShowlandClick = () => {
+    setShowland(true);
+    setShowStats(false);
+    setShowFarmersTable(false);
   };
   
   const handleUsersClick = async ()  => {
@@ -299,35 +309,51 @@ const DashboardPage = ({ onLogout, visible }) => {
     }
   };
 
-  const columns = [
-    { title: 'ID', render: (data) => (data?._id), key: '_id' },
-    { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber' },
-    { title: 'First Name', render: (data) => (data?.userInfo.firstname), key: 'username' },
-    { title: 'Last Name', render: (data) => (data?.userInfo.lastname), key: 'lastname' },
-    { title: 'Address', render: (data) => (data?.address), key: 'Address' },
-    { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber' },
-    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center' },
-    {
-      title: 'Actions',
-      dataIndex: 'actions',
-      key: 'actions',
-      render: (_, record) => (
-        <>
-          <Popconfirm
-            placement="topRight"
-            title="Are you sure?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => handleRemoveClick(record)}
-          >
-            <Text type="danger" style={{ cursor: 'pointer' }}>
-              Remove
-            </Text>
-          </Popconfirm>
-        </>
-      ),
-    },
-  ];
+    const columns = [
+      { title: 'Reference Number',  render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
+      { title: 'First Name', render: (data) => (data?.userInfo.firstname), key: 'username', width: 120 },
+      { title: 'Last Name', render: (data) => (data?.userInfo.lastname), width: 120 },
+      { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
+      { title: 'Phone Number',render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
+      {
+        title: 'View Land',
+        key: 'viewLand',
+        align: 'center',
+        render: (_, record) => (
+          <Button >View Land</Button>
+        ),
+        width: 100,
+      },
+      { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
+      {
+        title: 'Actions',
+        dataIndex: 'actions',
+        key: 'actions',
+        render: (_, record) => (
+          <>
+            <Popconfirm
+              placement="topRight"
+              title="Are you sure?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => handleRemoveClick(record)}
+            >
+              <Text type="danger" style={{ cursor: 'pointer' }}>
+                Remove
+              </Text>
+            </Popconfirm>
+          </>
+        ),
+        width: 100,
+      },
+    ];
+
+    const cols = [
+      { title: 'Mortgaged',  key: 'mortgaged', width: 150 },
+      { title: 'Contact Number', key: 'contactnumber', width: 120 },
+      { title: 'Land Owner',  key: 'landowner',width: 120 },
+      { title: 'Hectares',  key: 'hectares', width: 250, align: 'center' },
+    ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -343,7 +369,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Menu.Item key='1' icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
           </Menu.Item>
-          <Menu.Item icon={<LineChartOutlined />} >
+          <Menu.Item icon={<LineChartOutlined />}onClick={handleShowlandClick}>
             Mortgage Land
           </Menu.Item>
           <Menu.Item icon={<LineChartOutlined />} onClick={handleStatsClick}>
@@ -359,7 +385,6 @@ const DashboardPage = ({ onLogout, visible }) => {
       </Sider>
       <Layout className="site-layout" style={{ marginLeft: 200 }}>
         <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-
           {showFarmersTable && (
             <>
               <Card>
@@ -370,6 +395,19 @@ const DashboardPage = ({ onLogout, visible }) => {
                   </div>
                 </div>
                 <Table dataSource={data} columns={columns} pagination={{
+                  total: meta?.total ? meta?.total : 0,
+                  pageSize: 5,
+                }} />
+              </Card>
+            </>
+          )}
+          {showland && (
+            <>
+              <Card>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                  <Title level={3} >Mortgage Land</Title>
+                </div>
+                <Table  columns={cols} pagination={{
                   total: meta?.total ? meta?.total : 0,
                   pageSize: 5,
                 }} />
