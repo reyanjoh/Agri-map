@@ -29,6 +29,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [users, setUsers] = useState([]); // Store the user data
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
   const [showland, setShowland] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
 
   const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
@@ -45,6 +46,52 @@ const DashboardPage = ({ onLogout, visible }) => {
     const date = new Date(Math.round((excelDate - 25569) * 86400 * 1000));
     return date.toLocaleDateString();
   };
+
+  const handleRemoveStatistics = (fileId) => {
+    const updatedFiles = uploadedFiles.filter((file) => file.fileId !== fileId);
+    setUploadedFiles(updatedFiles);
+    localStorage.setItem('uploadedFiles', JSON.stringify(updatedFiles));
+  };
+  
+  const handleFileSubmit = (e) => {
+    e.preventDefault();
+    if (excelFile !== null && excelData !== null) {
+      const fileId = Date.now(); // Generate a unique identifier for the file
+      const newUploadedFile = {
+        fileId: fileId, // Add the fileId to the uploaded file object
+        filename: excelFile.name,
+        data: excelData.slice(0, 10),
+      };
+  
+      const updatedFiles = [...uploadedFiles, newUploadedFile];
+      setUploadedFiles(updatedFiles);
+      localStorage.setItem('uploadedFiles', JSON.stringify(updatedFiles));
+    } else {
+      // If no file selected or data is not formatted, display an error message
+      setTypeError('Please select an excel file');
+    }
+  };
+  
+  
+
+  const formatExcelData = (data) => {
+    // Convert date values to readable format
+    const formattedData = data.map((row) => {
+      const formattedRow = {};
+      for (let key in row) {
+        if (row.hasOwnProperty(key) && row[key] instanceof Date) {
+          formattedRow[key] = formatDate(row[key]);
+        } else {
+          formattedRow[key] = row[key];
+        }
+      }
+      return formattedRow;
+    });
+  
+    return formattedData;
+  };
+  
+  
 
   const handleAddClick = () => {
     setIsModalVisible(true);
@@ -199,34 +246,71 @@ const DashboardPage = ({ onLogout, visible }) => {
     }
   }, []);
 
-  // submit
-  const handleFileSubmit = (e) => {
-    e.preventDefault();
-    if (excelFile !== null) {
-      const workbook = XLSX.read(excelFile, { type: 'buffer' });
-      const worksheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[worksheetName];
-      const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
-
-      // Convert date values to readable format
-      const formattedData = data.map((row) => {
-        const formattedRow = {};
-        for (let key in row) {
-          if (row.hasOwnProperty(key) && row[key] instanceof Date) {
-            formattedRow[key] = formatDate(row[key]);
-          } else {
-            formattedRow[key] = row[key];
-          }
-        }
-        return formattedRow;
-      });
-
-      setExcelData(formattedData.slice(0, 10));
-      localStorage.setItem("uploadedExcelData", JSON.stringify(formattedData));
+  useEffect(() => {
+    const storedFiles = JSON.parse(localStorage.getItem('uploadedFiles'));
+    if (storedFiles) {
+      setUploadedFiles(storedFiles);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+  }, [uploadedFiles]);
+
+  // submit
+  // const handleFileSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (excelFile !== null) {
+  //     const workbook = XLSX.read(excelFile, { type: 'buffer' });
+  //     const worksheetName = workbook.SheetNames[0];
+  //     const worksheet = workbook.Sheets[worksheetName];
+  //     const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+
+  //     // Convert date values to readable format
+  //     const formattedData = data.map((row) => {
+  //       const formattedRow = {};
+  //       for (let key in row) {
+  //         if (row.hasOwnProperty(key) && row[key] instanceof Date) {
+  //           formattedRow[key] = formatDate(row[key]);
+  //         } else {
+  //           formattedRow[key] = row[key];
+  //         }
+  //       }
+  //       return formattedRow;
+  //     });
+
+  //     const newUploadedFile = {
+  //       filename: excelFile.name,
+  //       data: formattedData.slice(0, 10),
+  //     };
+
+  //     const updatedFiles = [...uploadedFiles, newUploadedFile];
+  //     setUploadedFiles(updatedFiles);
+  //     localStorage.setItem('uploadedFiles', JSON.stringify(updatedFiles));
+  //   }
+  // };
 
   // onchange event
+  // const handleFile = (e) => {
+  //   let fileTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
+  //   let selectedFile = e.target.files[0];
+  //   if (selectedFile) {
+  //     if (selectedFile && fileTypes.includes(selectedFile.type)) {
+  //       setTypeError(null);
+  //       let reader = new FileReader();
+  //       reader.readAsArrayBuffer(selectedFile);
+  //       reader.onload = (e) => {
+  //         setExcelFile(e.target.result);
+  //       };
+  //     } else {
+  //       setTypeError('Please select only excel file types');
+  //       setExcelFile(null);
+  //     }
+  //   } else {
+  //     console.log('Please select your file');
+  //   }
+  // };
+
   const handleFile = (e) => {
     let fileTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
     let selectedFile = e.target.files[0];
@@ -236,7 +320,15 @@ const DashboardPage = ({ onLogout, visible }) => {
         let reader = new FileReader();
         reader.readAsArrayBuffer(selectedFile);
         reader.onload = (e) => {
-          setExcelFile(e.target.result);
+          const workbook = XLSX.read(e.target.result, { type: 'buffer' });
+          const worksheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[worksheetName];
+          const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+          setExcelFile(selectedFile);
+  
+          // Format the data and set it in a separate state
+          const formattedData = formatExcelData(data);
+          setExcelData(formattedData);
         };
       } else {
         setTypeError('Please select only excel file types');
@@ -246,13 +338,15 @@ const DashboardPage = ({ onLogout, visible }) => {
       console.log('Please select your file');
     }
   };
+  
 
   // revise
-  const handlePrint = () => {
-    if (excelData) {
+  const handlePrint = (fileId) => {
+    const selectedFile = uploadedFiles.find((file) => file.fileId === fileId);
+    if (selectedFile) {
       const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-
+      const worksheet = XLSX.utils.json_to_sheet(selectedFile.data);
+  
       const columnWidths = [
         { wch: 20 }, // Column A
         { wch: 20 }, // Column B
@@ -261,17 +355,19 @@ const DashboardPage = ({ onLogout, visible }) => {
         { wch: 20 }, // Column E
       ];
       worksheet['!cols'] = columnWidths;
-
+  
       const currentDate = new Date();
       const options = { year: 'numeric', month: 'short', day: '2-digit' };
-      const dateString = currentDate.toLocaleDateString('en-US', options).replace('-', '');
-
+      const dateString = currentDate.toLocaleDateString('en-US', options).replace(/[/]/g, '');
+  
       XLSX.utils.book_append_sheet(workbook, worksheet, `Statistics-Report-${dateString}`);
-
+  
       const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-
-      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
+  
+      const blob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+  
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -279,6 +375,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       link.click();
     }
   };
+  
 
     const columns = [
       { title: 'Reference Number',  render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
@@ -385,23 +482,18 @@ const DashboardPage = ({ onLogout, visible }) => {
               </Card>
             </>
           )}
-          {showStats && (
+           {showStats && (
             <>
               <br />
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                   <Title level={3} >Statistics Report</Title>
-                  <div style={{ marginLeft: 'auto' }}>
-                    {excelData && (
-                      <button className="btn btn-primary btn-sm" onClick={handlePrint}>Download</button>
-                    )}
-                  </div>
                 </div>
                 <form className="form-group custom-form" onSubmit={handleFileSubmit}>
                   <Space>
                     <input ref={fileInputRef} type="file" className="form-control" required onChange={handleFile} />
                     <Button type="primary" value='small' htmlType="submit">Upload</Button>
-                    <Button type='primary' value='small' danger onClick={removeFile}>Remove</Button>
+                    {/* <Button type='primary' value='small' danger onClick={removeFile}>Remove</Button> */}
                   </Space>
                   {typeError && (
                     <div className="alert alert-danger" role="alert">{typeError}</div>
@@ -409,31 +501,53 @@ const DashboardPage = ({ onLogout, visible }) => {
                 </form>
                 <br />
                 <br />
-                {excelData && excelData.length > 0 ? (
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        {Object.keys(excelData[0]).map((key) => (
-                          <th key={key}>{key}</th>
-                        ))}
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {excelData.map((individualExcelData, index) => (
-                        <tr key={index}>
-                          {Object.keys(individualExcelData).map((key) => (
-                            <td key={key}>{individualExcelData[key]}</td>
+                {uploadedFiles.length > 0 ? (
+                uploadedFiles.map((file, index) => {
+                   // Remove the .xlsx extension from the filename
+                const filenameWithoutExtension = file.filename.replace(".xlsx", "");
+                return (
+                  <div key={index}>
+                    <Space>
+                    <h3>{filenameWithoutExtension}</h3>
+                    <Popconfirm
+                    title="Are you sure you want to remove this file?"
+                    onConfirm={() => handleRemoveStatistics(file.fileId)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button type="primary" danger>
+                      Remove
+                    </Button>
+                  </Popconfirm>
+                  <Button type="primary" onClick={() => handlePrint(file.fileId)}>Download</Button>
+                  </Space>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          {Object.keys(file.data[0]).map((key) => (
+                            <th key={key}>{key}</th>
                           ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div>No File is uploaded yet!</div>
-                )}
-              </Card>
+                      </thead>
+                      <tbody>
+                        {file.data.map((individualExcelData, index) => (
+                          <tr key={index}>
+                            {Object.keys(individualExcelData).map((key) => (
+                              <td key={key}>{individualExcelData[key]}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    
+                  </div>
+                 );
+                })
+              ) : (
+                <div>No files uploaded yet!</div>
+              )}
 
+              </Card>
             </>
           )}
           {showUsersTable && (
@@ -480,14 +594,11 @@ const DashboardPage = ({ onLogout, visible }) => {
 
         </div>
 
-        <Footer style={{ position: 'fixed', bottom: 0, marginLeft: '520px' }}>
-          <div>Agrimap ©2023</div>
-        </Footer>
       </Layout>
 
       <Modal
         title="Add Farmer"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
       >
@@ -524,7 +635,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       </Modal>
       <Modal
         title="Add User"
-        visible={isAddUserModalVisible}
+        open={isAddUserModalVisible}
         onCancel={() => setIsAddUserModalVisible(false)}
         footer={null}
       >
