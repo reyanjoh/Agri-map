@@ -310,6 +310,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
     const columns = [
+      { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
       { title: 'Reference Number',  render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
       { title: 'First Name', render: (data) => (data?.userInfo.firstname), key: 'username', width: 120 },
       { title: 'Last Name', render: (data) => (data?.userInfo.lastname), width: 120 },
