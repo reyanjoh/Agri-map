@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space, Card, Popconfirm } from 'antd';
-import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined } from '@ant-design/icons';
+import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
@@ -30,7 +30,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
   const [showland, setShowland] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-
+  const [isModal, setIsModal] = useState(false);
 
   const { data, loading, err } = useFetch('https://agri-map.onrender.com/farmers/view-all');
   // console.log(data);
@@ -72,6 +72,13 @@ const DashboardPage = ({ onLogout, visible }) => {
     }
   };
   
+  const handleViewLandClick = () => {
+    setIsModal(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModal(false);
+  };
   
 
   const formatExcelData = (data) => {
@@ -212,14 +219,14 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowFarmersTable(false);
   };
   
-  // useEffect(() => {
-  //   const savedFarmers = localStorage.getItem('farmers');
-  //   if (savedFarmers) {
-  //     setFarmers(JSON.parse(savedFarmers));
-  //     setShowFarmersTable(true);
+  useEffect(() => {
+    const savedFarmers = localStorage.getItem('farmers');
+    if (savedFarmers) {
+      setFarmers(JSON.parse(savedFarmers));
+      setShowFarmersTable(true);
 
-  //   }
-  // }, []);
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('farmers', JSON.stringify(farmers));
@@ -257,59 +264,6 @@ const DashboardPage = ({ onLogout, visible }) => {
     localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
   }, [uploadedFiles]);
 
-  // submit
-  // const handleFileSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (excelFile !== null) {
-  //     const workbook = XLSX.read(excelFile, { type: 'buffer' });
-  //     const worksheetName = workbook.SheetNames[0];
-  //     const worksheet = workbook.Sheets[worksheetName];
-  //     const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
-
-  //     // Convert date values to readable format
-  //     const formattedData = data.map((row) => {
-  //       const formattedRow = {};
-  //       for (let key in row) {
-  //         if (row.hasOwnProperty(key) && row[key] instanceof Date) {
-  //           formattedRow[key] = formatDate(row[key]);
-  //         } else {
-  //           formattedRow[key] = row[key];
-  //         }
-  //       }
-  //       return formattedRow;
-  //     });
-
-  //     const newUploadedFile = {
-  //       filename: excelFile.name,
-  //       data: formattedData.slice(0, 10),
-  //     };
-
-  //     const updatedFiles = [...uploadedFiles, newUploadedFile];
-  //     setUploadedFiles(updatedFiles);
-  //     localStorage.setItem('uploadedFiles', JSON.stringify(updatedFiles));
-  //   }
-  // };
-
-  // onchange event
-  // const handleFile = (e) => {
-  //   let fileTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
-  //   let selectedFile = e.target.files[0];
-  //   if (selectedFile) {
-  //     if (selectedFile && fileTypes.includes(selectedFile.type)) {
-  //       setTypeError(null);
-  //       let reader = new FileReader();
-  //       reader.readAsArrayBuffer(selectedFile);
-  //       reader.onload = (e) => {
-  //         setExcelFile(e.target.result);
-  //       };
-  //     } else {
-  //       setTypeError('Please select only excel file types');
-  //       setExcelFile(null);
-  //     }
-  //   } else {
-  //     console.log('Please select your file');
-  //   }
-  // };
 
   const handleFile = (e) => {
     let fileTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
@@ -388,7 +342,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         key: 'viewLand',
         align: 'center',
         render: (_, record) => (
-          <Button >View Land</Button>
+          <Button type="primary" onClick={handleViewLandClick}>View Land</Button>
         ),
         width: 100,
       },
@@ -437,7 +391,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Menu.Item key='1' icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
           </Menu.Item>
-          <Menu.Item icon={<LineChartOutlined />}onClick={handleShowlandClick}>
+          <Menu.Item icon={<BorderOuterOutlined />}onClick={handleShowlandClick}>
             Mortgage Land
           </Menu.Item>
           <Menu.Item icon={<LineChartOutlined />} onClick={handleStatsClick}>
@@ -459,7 +413,7 @@ const DashboardPage = ({ onLogout, visible }) => {
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                   <Title level={3} >List of Farmers</Title>
                   <div style={{ marginLeft: 'auto' }}>
-                    <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add</Button>
+                    <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add farmer</Button>
                   </div>
                 </div>
                 <Table dataSource={data} columns={columns} pagination={{
@@ -628,7 +582,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              Add
+               Add farmer
             </Button>
           </Form.Item>
         </Form>
@@ -667,10 +621,15 @@ const DashboardPage = ({ onLogout, visible }) => {
           
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              Add
+              Add farmer
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+    
+      {/* for view land */}
+      <Modal    title="Land Details"  onCancel={handleModalClose} open={isModal}  width={800} bodyStyle={{height: 400}} footer={null} >
+      <p>Land details will appear here.</p>
       </Modal>
     </Layout>
   );
