@@ -11,7 +11,7 @@ import * as proj from 'ol/proj';
 import Mapa from "./util/map/Mapa";
 
 
-let environment = 'LOCAL';
+let environment = '';
 let server;
 
 environment === 'LOCAL' ? server = 'http://localhost:5001' : server = process.env.REACT_APP_SERVER;
