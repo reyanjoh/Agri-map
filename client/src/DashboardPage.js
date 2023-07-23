@@ -11,7 +11,7 @@ import * as proj from 'ol/proj';
 import Mapa from "./util/map/Mapa";
 
 
-let environment = '';
+let environment = 'LOCAL';
 let server;
 
 environment === 'LOCAL' ? server = 'http://localhost:5001' : server = process.env.REACT_APP_SERVER;
@@ -44,7 +44,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isModal, setIsModal] = useState(false);
 
-  const [posBg, setPosBg]  = useState([]);
+  const [coordinates, setCoordinates]  = useState([]);
 
   const { data, loading, err } = useFetch(`${server}/farmers/view-all`);
 
@@ -85,8 +85,22 @@ const DashboardPage = ({ onLogout, visible }) => {
     }
   };
   
-  const handleViewLandClick = () => {
-    setPosBg(proj.fromLonLat([120.984222, 14.599512]))
+  const handleViewLandClick = (data) => {
+
+    // fetch(`${server}/landCoordinates/view-land/64a301f7894a337f1101f9ef`, {
+    //   method: 'GET', 
+    // })
+   
+    // .then( res => res.json())
+    // .then(data => {
+    //   console.log(`get ${data}`);
+
+    // })
+    // .catch((e) => {
+    //   return(e)
+    // })
+
+    setCoordinates(proj.fromLonLat([data.landCoordinates.yAxis, data.landCoordinates.xAxis]))
     setIsModal(true);
   };
 
@@ -380,8 +394,8 @@ const DashboardPage = ({ onLogout, visible }) => {
         title: '',
         key: 'viewLand',
         align: 'center',
-        render: (_, record) => (
-          <Button type="primary" onClick={handleViewLandClick}>View Land</Button>
+        render: (data) => (
+          <Button type="primary" onClick={() => handleViewLandClick(data)}>View Land</Button>
         ),
         width: 100,
       },
@@ -670,7 +684,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     
       {/* for view land */}
       <Modal title="Land Details"  onCancel={handleModalClose} open={isModal}  width={800} bodyStyle={{height: 400}} footer={null} >
-        <Mapa posBg={posBg} />
+        <Mapa coordinates={coordinates} />
       </Modal>
     </Layout>
   );

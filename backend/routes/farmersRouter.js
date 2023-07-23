@@ -8,7 +8,11 @@ const Users = require('../models/userSchema')
 router.get('/view-all', (req, res) => {
     Farmer.find()
     .populate('userInfo')
-    .then(DAemployee => res.json(DAemployee))
+    .populate('landCoordinates')
+    .then(farmer => {
+        res.json(farmer)
+        // console.log(farmer);
+    })
     .catch(err => res.status(400).json('err' + err));
 })
 

@@ -11,7 +11,7 @@ import Point from 'ol/geom/Point';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 
-const Mapa = ({ posBg }) => {
+const Mapa = ({ coordinates }) => {
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -29,13 +29,13 @@ const Mapa = ({ posBg }) => {
       target: mapRef.current,
       layers: [new TileLayer({ source: new OSM() })],
       view: new View({
-        center: posBg,
+        center: coordinates,
         zoom: 18,
       }),
     });
 
     const pinFeature = new Feature({
-      geometry: new Point(posBg),
+      geometry: new Point(coordinates),
     });
 
     pinFeature.setStyle(iconStyle);
@@ -51,7 +51,7 @@ const Mapa = ({ posBg }) => {
     return () => {
       myMap.setTarget(null);
     };
-  }, [posBg]);
+  }, [coordinates]);
 
   return <div style={{ height: '100%', width: '100%', position: 'relative', zIndex: '1' }} ref={mapRef} />;
 };
