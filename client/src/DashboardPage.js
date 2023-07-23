@@ -7,6 +7,10 @@ import useFetch from './util/useFetch';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { parseISO, format } from 'date-fns';
 
+import * as proj from 'ol/proj';
+import Mapa from "./util/map/Mapa";
+
+
 let environment = 'LOCAL';
 let server;
 
@@ -39,6 +43,8 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [showland, setShowland] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isModal, setIsModal] = useState(false);
+
+  const [posBg, setPosBg]  = useState([]);
 
   const { data, loading, err } = useFetch(`${server}/farmers/view-all`);
 
@@ -80,6 +86,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
   
   const handleViewLandClick = () => {
+    setPosBg(proj.fromLonLat([120.984222, 14.599512]))
     setIsModal(true);
   };
 
@@ -367,8 +374,10 @@ const DashboardPage = ({ onLogout, visible }) => {
       { title: 'Last Name', render: (data) => (data?.userInfo.lastname), width: 120 },
       { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
       { title: 'Phone Number',render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
+      
+      { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
       {
-        title: 'View Land',
+        title: '',
         key: 'viewLand',
         align: 'center',
         render: (_, record) => (
@@ -376,9 +385,8 @@ const DashboardPage = ({ onLogout, visible }) => {
         ),
         width: 100,
       },
-      { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
       {
-        title: 'Actions',
+        title: '',
         dataIndex: 'actions',
         key: 'actions',
         render: (_, record) => (
@@ -406,7 +414,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       { title: 'Land Owner',  key: 'landowner',width: 120 },
       { title: 'Hectares',  key: 'hectares', width: 250, align: 'center' },
     ];
-
+    
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider style={{ position: 'fixed', height: '100vh' }}>
@@ -657,11 +665,12 @@ const DashboardPage = ({ onLogout, visible }) => {
             </Button>
           </Form.Item>
         </Form>
-      </Modal>
+      </Modal>  
+      
     
       {/* for view land */}
-      <Modal    title="Land Details"  onCancel={handleModalClose} open={isModal}  width={800} bodyStyle={{height: 400}} footer={null} >
-      <p>Land details will appear here.</p>
+      <Modal title="Land Details"  onCancel={handleModalClose} open={isModal}  width={800} bodyStyle={{height: 400}} footer={null} >
+        <Mapa posBg={posBg} />
       </Modal>
     </Layout>
   );
