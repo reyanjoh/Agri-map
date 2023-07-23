@@ -12,7 +12,7 @@ const landCoordinatesSchema = new mongoose.Schema({
     },
     landOwner: {
         type: Schema.Types.ObjectId,
-        ref: 'Farmer'
+        ref: 'users'
     }
 
 }, { timestamps: true })
@@ -31,20 +31,24 @@ const MortgagedSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    location:[{
+    location:{
+        type: String,
+        required: true
+    },
+    coordinates:[{
         type: Schema.Types.ObjectId,
-        ref: 'LandCoordinates'
+        ref: 'landCoordinates'
     }],
     landOwner:{
         type: Schema.Types.ObjectId,
-        ref: 'Farmer'
+        ref: 'users'
     }
 
 }, { timestamps: true })
 
 
 const LandCoordinates = mongoose.model('LandCoordinates', landCoordinatesSchema);
-const Mortgaged = mongoose.model('Mortgaged', MortgagedSchema);
+const Mortgaged = mongoose.model('Mortgage', MortgagedSchema);
 
 
 module.exports = {
