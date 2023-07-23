@@ -29,22 +29,36 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [stats, setStats] = useState([]);
   const [showStats, setShowStats] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isFarmlandModalVisible, setIsFarmlandModalVisible] = useState(false);
+
+  const fileInputRef = useRef(null);
+
+  const [isAddUserModalVisible, setIsAddUserModalVisible] = useState(false);
   const [showFarmersTable, setShowFarmersTable] = useState(false);
   const [excelFile, setExcelFile] = useState(null);
   const [typeError, setTypeError] = useState(null);
   const [excelData, setExcelData] = useState(null);
-  const fileInputRef = useRef(null);
-  const [isAddUserModalVisible, setIsAddUserModalVisible] = useState(false);
+
+
   const [username, setUsername] = useState('');
   const [lastname, setLastname] = useState('');
   const [firstname, setFirstname] = useState('');
   const [users, setUsers] = useState([]); // Store the user data
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
   const [showland, setShowland] = useState(false);
+  const [showFarmLands, setShowFarmLands] = useState(false);
+
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isModal, setIsModal] = useState(false);
 
   const [coordinates, setCoordinates]  = useState([]);
+
+  const [isFarmLandModal, setisFarmLandModal] = useState(false);
+  const [farmLandCoordinates, setFarmLandCoordinates]  = useState([]);
+
+  const [farmLands, setFarmLands]  = useState([]);
+  const [landlord, setLandlord]  = useState('');
+
 
   const { data, loading, err } = useFetch(`${server}/farmers/view-all`);
 
@@ -104,8 +118,21 @@ const DashboardPage = ({ onLogout, visible }) => {
     setIsModal(true);
   };
 
+  const handleViewFarmLandClick = (data) => {
+    console.log(data);
+    // setLandlord(data)
+    setFarmLandCoordinates(proj.fromLonLat([data.yAxis, data.xAxis]))
+    setisFarmLandModal(true);
+  };
+
   const handleModalClose = () => {
     setIsModal(false);
+  };
+
+  
+
+  const handleFarmLandModalClose = () => {
+    setisFarmLandModal(false);
   };
   
 
@@ -130,6 +157,12 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   const handleAddClick = () => {
     setIsModalVisible(true);
+  };
+
+  
+
+  const handleAddFarmlandClick = () => {
+    setIsFarmlandModalVisible(true);
   };
 
   const handleRemoveClick = (record) => {
@@ -196,6 +229,38 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowFarmersTable(true);
   };
 
+
+  const handleFarmLandModalCancel = () => {
+    setIsFarmlandModalVisible(false);
+  };
+
+  const handleFarmLandModalSubmit = (values) => {
+    const newFarmer = {
+      landOwner: values.landOwner,
+      xAxis: values.xAxis,
+      yAxis: values.yAxis
+    };
+
+    console.log(newFarmer);
+
+    fetch(`${server}/landCoordinates/add-land`, {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify(newFarmer)
+    }).then( res => res.json())
+    .then(data => {
+      console.log(data);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    setFarmers([...farmers, newFarmer]);
+    setIsFarmlandModalVisible(false);
+    setShowFarmLands(true);
+  };
+
   const handleAddUser = (values) => {
     const newUser = {
       username: values.username,
@@ -238,22 +303,53 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   const handleStatsClick = () => {
-    setShowStats(true);
     setShowFarmersTable(false);
+    setShowFarmLands(false)
+    setShowStats(true);
     setShowUsersTable(false);
     setShowland(false);
   };
   const handleFarmersClick = () => {
     setShowFarmersTable(true);
+    setShowFarmLands(false)
     setShowStats(false);
     setShowUsersTable(false);
     setShowland(false);
   };
 
   const handleShowlandClick = () => {
-    setShowland(true);
-    setShowStats(false);
     setShowFarmersTable(false);
+    setShowFarmLands(false)
+    setShowStats(false);
+    setShowUsersTable(false);
+    setShowland(true);
+  };
+
+  
+
+  const handleFarmLandsClick = () => {
+    fetch(`${server}/landCoordinates/view-lands`, {
+      method: 'GET'
+    }).then( res => res.json())
+    .then(data => {
+      // console.log();
+      setFarmLands(data);
+
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    // const JsonUsers = await users.json()
+
+    // console.log(JsonUsers);
+
+    setShowFarmersTable(false);
+    setShowFarmLands(true)
+    setShowStats(false);
+    setShowUsersTable(false);
+    setShowland(false);
   };
   
   const handleUsersClick = async ()  => {
@@ -264,9 +360,11 @@ const DashboardPage = ({ onLogout, visible }) => {
     console.log(JsonUsers);
     setUsers(JsonUsers);
 
-    setShowUsersTable(true);
-    setShowStats(false);
     setShowFarmersTable(false);
+    setShowFarmLands(false)
+    setShowStats(false);
+    setShowUsersTable(true);
+    setShowland(false);
   };
   
   useEffect(() => {
@@ -422,6 +520,42 @@ const DashboardPage = ({ onLogout, visible }) => {
       },
     ];
 
+    const farmLandColumns = [
+      { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
+      { title: 'Latitude',  render: (data) => (data?.xAxis), key: 'referenceNumber', width: 150 },
+      { title: 'Longitude', render: (data) => (data?.yAxis), key: 'username', width: 120 },
+      {
+        title: '',
+        key: 'viewLand',
+        align: 'center',
+        render: (data) => (
+          <Button type="primary" onClick={() => handleViewFarmLandClick(data)}>View Land</Button>
+        ),
+        width: 100,
+      },
+      {
+        title: '',
+        dataIndex: 'actions',
+        key: 'actions',
+        render: (_, record) => (
+          <>
+            <Popconfirm
+              placement="topRight"
+              title="Are you sure?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => handleRemoveClick(record)}
+            >
+              <Text type="danger" style={{ cursor: 'pointer' }}>
+                Remove
+              </Text>
+            </Popconfirm>
+          </>
+        ),
+        width: 100,
+      },
+    ];
+
     const cols = [
       { title: 'Mortgaged',  key: 'mortgaged', width: 150 },
       { title: 'Contact Number', key: 'contactnumber', width: 120 },
@@ -442,12 +576,15 @@ const DashboardPage = ({ onLogout, visible }) => {
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" >
           <Menu.Item key='1' icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
-          </Menu.Item>
+          </Menu.Item>  
           <Menu.Item icon={<BorderOuterOutlined />}onClick={handleShowlandClick}>
             Mortgage Land
           </Menu.Item>
           <Menu.Item icon={<LineChartOutlined />} onClick={handleStatsClick}>
             Statistics Report
+          </Menu.Item>
+          <Menu.Item icon={<BorderOuterOutlined />} onClick={handleFarmLandsClick}>
+            Farm Coordinates
           </Menu.Item>
           <Menu.Item icon={<UserOutlined />} onClick={handleUsersClick}>
             Users
@@ -479,7 +616,7 @@ const DashboardPage = ({ onLogout, visible }) => {
             <>
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                  <Title level={3} >Mortgage Land</Title>
+                  <Title level={3} >Mortgage Land</Title>List of user
                 </div>
                 <Table  columns={cols} pagination={{
                   total: meta?.total ? meta?.total : 0,
@@ -555,6 +692,23 @@ const DashboardPage = ({ onLogout, visible }) => {
 
               </Card>
             </>
+          )}
+
+          {showFarmLands && (
+            <>
+            <Card>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <Title level={3} >Farm Coordinates</Title>
+                <div style={{ marginLeft: 'auto' }}>
+                  <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddFarmlandClick}>Add Farmland</Button>
+                </div>
+              </div>
+              <Table dataSource={farmLands} columns={farmLandColumns} pagination={{
+                total: meta?.total ? meta?.total : 0,
+                pageSize: 5,
+              }} />
+            </Card>
+          </>
           )}
           {showUsersTable && (
             <>
@@ -641,6 +795,38 @@ const DashboardPage = ({ onLogout, visible }) => {
           </Form.Item>
         </Form>
       </Modal>
+
+      <Modal
+        title="Add Farm Land"
+        open={isFarmlandModalVisible}
+        onCancel={handleFarmLandModalCancel}
+        footer={null}
+      >
+        
+
+        <Form onFinish={handleFarmLandModalSubmit}>
+          
+          
+          <Form.Item label="Land Lords User ID" name="landOwner" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Latitude" name="xAxis" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Longitude" name="yAxis" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+               Add Farmland
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+
+
       <Modal
         title="Add User"
         open={isAddUserModalVisible}
@@ -685,6 +871,11 @@ const DashboardPage = ({ onLogout, visible }) => {
       {/* for view land */}
       <Modal title="Land Details"  onCancel={handleModalClose} open={isModal}  width={800} bodyStyle={{height: 400}} footer={null} >
         <Mapa coordinates={coordinates} />
+      </Modal>
+
+      <Modal title="Land Details"  onCancel={handleFarmLandModalClose} open={isFarmLandModal}  width={800} bodyStyle={{height: 400}} footer={null} >
+        <p>{landlord}</p>
+        <Mapa coordinates={farmLandCoordinates} />
       </Modal>
     </Layout>
   );
