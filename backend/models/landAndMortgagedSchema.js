@@ -12,7 +12,7 @@ const landCoordinatesSchema = new mongoose.Schema({
     },
     landOwner: {
         type: Schema.Types.ObjectId,
-        ref: 'users'
+        ref: 'User'
     }
 
 }, { timestamps: true })

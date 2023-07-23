@@ -18,7 +18,18 @@ router.post('/add-land', (req, res) => {
 
 router.get('/view-lands', (req, res) => {
     LandCoordinates.find()
-    .populate('landOwner')
+    // .populate('landOwner')
+    .then((LandCoordinates) => res.json(LandCoordinates))
+    .catch(err => res.status(400).json('' + err))
+})
+
+router.get('/view-land/:_id', (req, res) => {
+
+    console.log(req.params);
+    LandCoordinates.findOne(req.params)
+    // .populate('landOwner')
+    // .populate('landCoordinates')
+     .populate('userInfo')
     .then((LandCoordinates) => res.json(LandCoordinates))
     .catch(err => res.status(400).json('' + err))
 })
