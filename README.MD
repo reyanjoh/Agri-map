@@ -11,7 +11,7 @@ cd client
 
 Run:
 ```
-npm install
+npm install -f
 ```
 Go back to main directory to install server dependencies
 
