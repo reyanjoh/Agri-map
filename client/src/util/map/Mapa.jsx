@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
+// import OSM from 'ol/source/OSM';
+import { XYZ } from 'ol/source';
 import 'ol/ol.css';
 
 import Style from 'ol/style/Style';
@@ -27,7 +28,8 @@ const Mapa = ({ coordinates }) => {
 
     const myMap = new Map({
       target: mapRef.current,
-      layers: [new TileLayer({ source: new OSM() })],
+      // layers: [new TileLayer({ source: new OSM() })],
+      layers: [new TileLayer({ source: new XYZ({ url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png' }) })],
       view: new View({
         center: coordinates,
         zoom: 18,
