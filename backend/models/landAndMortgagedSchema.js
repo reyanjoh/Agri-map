@@ -37,11 +37,11 @@ const MortgagedSchema = new mongoose.Schema({
     },
     coordinates:[{
         type: Schema.Types.ObjectId,
-        ref: 'landCoordinates'
+        ref: 'LandCoordinates'
     }],
     landOwner:{
         type: Schema.Types.ObjectId,
-        ref: 'users'
+        ref: 'User'
     }
 
 }, { timestamps: true })

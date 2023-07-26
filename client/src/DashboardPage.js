@@ -9,9 +9,10 @@ import { parseISO, format } from 'date-fns';
 
 import * as proj from 'ol/proj';
 import Mapa from "./util/map/Mapa";
+import AllFarmsMap from "./util/map/AllFarmsMap";
 
 
-let environment = '';
+let environment = 'LOCAL';
 let server;
 
 environment === 'LOCAL' ? server = 'http://localhost:5001' : server = process.env.REACT_APP_SERVER;
@@ -31,10 +32,15 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isFarmlandModalVisible, setIsFarmlandModalVisible] = useState(false);
 
+  
+  const [isAddMortgageLandModalVisible, setIsAddMortgageLandModalVisible] = useState(false);
+
+
   const fileInputRef = useRef(null);
 
   const [isAddUserModalVisible, setIsAddUserModalVisible] = useState(false);
   const [showFarmersTable, setShowFarmersTable] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(true);
   const [excelFile, setExcelFile] = useState(null);
   const [typeError, setTypeError] = useState(null);
   const [excelData, setExcelData] = useState(null);
@@ -52,6 +58,8 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [isModal, setIsModal] = useState(false);
 
   const [coordinates, setCoordinates]  = useState([]);
+  const [mortgageLand, setMortgageLand]  = useState([]);
+  const [dataSource, setDataSource] = useState([]);
 
   const [isFarmLandModal, setisFarmLandModal] = useState(false);
   const [farmLandCoordinates, setFarmLandCoordinates]  = useState([]);
@@ -125,6 +133,12 @@ const DashboardPage = ({ onLogout, visible }) => {
     setisFarmLandModal(true);
   };
 
+  const handleViewMortgageLandClick = (data) => {
+    // setLandlord(data)
+    setFarmLandCoordinates(proj.fromLonLat([data.coordinates[0].yAxis, data.coordinates[0].xAxis]))
+    setisFarmLandModal(true);
+  };
+
   const handleModalClose = () => {
     setIsModal(false);
   };
@@ -160,6 +174,11 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   
+  
+
+  const handleAddMortgageLand = () => {
+    setIsAddMortgageLandModalVisible(true);
+  };
 
   const handleAddFarmlandClick = () => {
     setIsFarmlandModalVisible(true);
@@ -198,6 +217,11 @@ const DashboardPage = ({ onLogout, visible }) => {
   const handleModalCancel = () => {
     setIsModalVisible(false);
   };
+  const handleAddMortgageLandModalCancel = () => {
+    setIsAddMortgageLandModalVisible(false);
+  };
+
+  
 
   const handleModalSubmit = (values) => {
     const newFarmer = {
@@ -227,6 +251,39 @@ const DashboardPage = ({ onLogout, visible }) => {
     setFarmers([...farmers, newFarmer]);
     setIsModalVisible(false);
     setShowFarmersTable(true);
+  };
+
+
+  
+
+  const handleAddMortgageLandModalSubmit = (values) => {
+    const newMortgageLand = {
+      mortgagedTo: values.mortgagedTo,
+      phoneNumber: values.phoneNumber,
+      hectares: values.hectares,
+      location: values.location,
+      coordinates: values.coordinates,
+      landOwner: values.landOwner
+    };
+
+    console.log(newMortgageLand);
+
+    fetch(`${server}/morgage/add-land`, {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify(newMortgageLand)
+    }).then( res => res.json())
+    .then(data => {
+      console.log(data);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    // setFarmers([...farmers, newMortgageLand]);
+    setIsAddMortgageLandModalVisible(false);
+    setShowland(true);
   };
 
 
@@ -303,6 +360,7 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   const handleStatsClick = () => {
+    setShowDashboard(false);
     setShowFarmersTable(false);
     setShowFarmLands(false)
     setShowStats(true);
@@ -310,6 +368,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowland(false);
   };
   const handleFarmersClick = () => {
+    setShowDashboard(false);
     setShowFarmersTable(true);
     setShowFarmLands(false)
     setShowStats(false);
@@ -318,6 +377,24 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
 
   const handleShowlandClick = () => {
+
+    fetch(`${server}/morgage/view-all`, {
+      method: 'GET'
+    }).then( res => res.json()) 
+    .then(data => {
+      console.log(data);
+      setDataSource(data)
+
+      console.log(dataSource);
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+
+
+
+    setShowDashboard(false);
     setShowFarmersTable(false);
     setShowFarmLands(false)
     setShowStats(false);
@@ -332,7 +409,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       method: 'GET'
     }).then( res => res.json())
     .then(data => {
-      // console.log();
+      console.log(data);
       setFarmLands(data);
 
 
@@ -344,7 +421,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     // const JsonUsers = await users.json()
 
     // console.log(JsonUsers);
-
+    setShowDashboard(false);
     setShowFarmersTable(false);
     setShowFarmLands(true)
     setShowStats(false);
@@ -359,7 +436,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
     console.log(JsonUsers);
     setUsers(JsonUsers);
-
+    setShowDashboard(false);
     setShowFarmersTable(false);
     setShowFarmLands(false)
     setShowStats(false);
@@ -371,7 +448,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     const savedFarmers = localStorage.getItem('farmers');
     if (savedFarmers) {
       setFarmers(JSON.parse(savedFarmers));
-      setShowFarmersTable(true);
+      // setShowFarmersTable(true);
 
     }
   }, []);
@@ -519,9 +596,10 @@ const DashboardPage = ({ onLogout, visible }) => {
         width: 100,
       },
     ];
-
+    
     const farmLandColumns = [
       { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
+      { title: 'User',  render: (data) => (data?.landOwner.lastname), key: 'landOwner', width: 150 },
       { title: 'Latitude',  render: (data) => (data?.xAxis), key: 'referenceNumber', width: 150 },
       { title: 'Longitude', render: (data) => (data?.yAxis), key: 'username', width: 120 },
       {
@@ -557,10 +635,50 @@ const DashboardPage = ({ onLogout, visible }) => {
     ];
 
     const cols = [
-      { title: 'Mortgaged',  key: 'mortgaged', width: 150 },
-      { title: 'Contact Number', key: 'contactnumber', width: 120 },
-      { title: 'Land Owner',  key: 'landowner',width: 120 },
-      { title: 'Hectares',  key: 'hectares', width: 250, align: 'center' },
+
+      { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
+      { title: 'Mortgaged To',  render: (data) => (data?.mortgagedTo), key: 'mortgagedTo', width: 150 },
+      { title: 'Location/Address',  render: (data) => (data?.location), key: 'location', width: 150 },
+      { title: 'Contact Numbe', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 120 },
+      { title: 'Land Owner', render: (data) => (data?.landOwner.firstname), key: 'landOwner', width: 120 },
+      { title: 'Hectares', render: (data) => (data?.hectares), key: 'hectares', width: 120 },
+
+      {
+        title: '',
+        key: 'viewLand',
+        align: 'center',
+        render: (data) => (
+          <Button type="primary" onClick={() => handleViewMortgageLandClick(data)}>View Land</Button>
+        ),
+        width: 100,
+      },
+      {
+        title: '',
+        dataIndex: 'actions',
+        key: 'actions',
+        render: (_, record) => (
+          <>
+            <Popconfirm
+              placement="topRight"
+              title="Are you sure?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => handleRemoveClick(record)}
+            >
+              <Text type="danger" style={{ cursor: 'pointer' }}>
+                Remove
+              </Text>
+            </Popconfirm>
+          </>
+        ),
+        width: 100,
+      },
+    ];
+
+    const locations = [
+      { lat: 14.599512, lon: 120.984222 },
+      { lat: 13.599512, lon: 100.484222 },
+      // Add more locations as needed
     ];
     
   return (
@@ -572,9 +690,9 @@ const DashboardPage = ({ onLogout, visible }) => {
         </Space>
         <br />
         <br />
-        <h2 style={{ height: '32px', margin: '16px', color: 'white' }}>Dashboard</h2>
+        <a href="/"><h2 style={{ height: '32px', margin: '16px', color: 'white', textDecoration: 'none'}}>Dashboard</h2></a>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" >
-          <Menu.Item key='1' icon={<TeamOutlined />} onClick={handleFarmersClick}>
+          <Menu.Item icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
           </Menu.Item>  
           <Menu.Item icon={<BorderOuterOutlined />}onClick={handleShowlandClick}>
@@ -596,6 +714,14 @@ const DashboardPage = ({ onLogout, visible }) => {
       </Sider>
       <Layout className="site-layout" style={{ marginLeft: 200 }}>
         <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
+        {showDashboard && (
+            <>
+              <Card style={{ height: '90dvh' }}>
+                <AllFarmsMap locations={locations} />
+              </Card>
+            </>
+          )}
+
           {showFarmersTable && (
             <>
               <Card>
@@ -616,9 +742,12 @@ const DashboardPage = ({ onLogout, visible }) => {
             <>
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                  <Title level={3} >Mortgage Land</Title>List of user
+                  <Title level={3} >Mortgage Land</Title>
+                  <div style={{ marginLeft: 'auto' }}>
+                    <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddMortgageLand}>Add Mortgage Land</Button>
+                  </div>
                 </div>
-                <Table  columns={cols} pagination={{
+                <Table  dataSource={dataSource}  columns={cols} pagination={{
                   total: meta?.total ? meta?.total : 0,
                   pageSize: 5,
                 }} />
@@ -791,6 +920,47 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item>
             <Button type="primary" htmlType="submit">
                Add farmer
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+
+      <Modal
+        title="Add Mortgage Land"
+        open={isAddMortgageLandModalVisible}
+        onCancel={handleAddMortgageLandModalCancel}
+        footer={null}
+      >
+        <Form onFinish={handleAddMortgageLandModalSubmit}>
+          <Form.Item label="Mortgaged to" name="mortgagedTo" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Location/address" name="location" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Coordinates ID" name="coordinates" placeholer="test" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Land Owner" name="landOwner" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Total Hectares" name="hectares" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+
+          
+          {/* <Form.Item label="Proof Of Ownership" name="proofOfOwnership">
+            <Upload>
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item> */}
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+               Add Mortgaged Land
             </Button>
           </Form.Item>
         </Form>

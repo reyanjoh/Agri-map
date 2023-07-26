@@ -5,9 +5,10 @@ const {Mortgaged} = require('../models/landAndMortgagedSchema')
 
 router.get('/view-all', (req, res) =>{
     Mortgaged.find()
-    // .populate('userRole')
+    .populate('landOwner')
+    .populate('coordinates')
     .then(mortgagedLands => {
-        console.log(mortgagedLands)
+        // console.log(mortgagedLands)
         res.json(mortgagedLands)
     })
     .catch(err => res.status(400).json('err' + err));
