@@ -56,8 +56,8 @@ export default class AllFarmsMap extends React.Component {
         view: new View({
           center: philippinesCenter,
           zoom: 12, // Adjust the zoom level as needed
-          minZoom: 12, 
-          maxZoom: 12,
+        //   minZoom: 12, 
+        //   maxZoom: 12,
         }),
       }),
     };

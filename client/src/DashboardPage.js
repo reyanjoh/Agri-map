@@ -613,8 +613,8 @@ const DashboardPage = ({ onLogout, visible }) => {
     const columns = [
       { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
       { title: 'Reference Number',  render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
-      { title: 'First Name', render: (data) => (data?.userInfo.firstname), key: 'username', width: 120 },
-      { title: 'Last Name', render: (data) => (data?.userInfo.lastname), width: 120 },
+      { title: 'First Name', render: (data) => (data?.userInfo?.firstname), key: 'username', width: 120 },
+      { title: 'Last Name', render: (data) => (data?.userInfo?.lastname), width: 120 },
       { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
       { title: 'Phone Number',render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
       
@@ -653,7 +653,8 @@ const DashboardPage = ({ onLogout, visible }) => {
     
     const farmLandColumns = [
       { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
-      { title: 'User',  render: (data) => (data?.landOwner.lastname), key: 'landOwner', width: 150 },
+      // { title: 'Land Lord',  render: (data) => (data?.landOwner.firstname), key: 'landOwner', width: 80 },
+      // { title: '',  render: (data) => (data?.landOwner.lastname), key: 'landOwner', width: 150 },
       { title: 'Latitude',  render: (data) => (data?.xAxis), key: 'referenceNumber', width: 150 },
       { title: 'Longitude', render: (data) => (data?.yAxis), key: 'username', width: 120 },
       {
@@ -694,7 +695,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       { title: 'Mortgaged To',  render: (data) => (data?.mortgagedTo), key: 'mortgagedTo', width: 150 },
       { title: 'Location/Address',  render: (data) => (data?.location), key: 'location', width: 150 },
       { title: 'Contact Numbe', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 120 },
-      { title: 'Land Owner', render: (data) => (data?.landOwner.firstname), key: 'landOwner', width: 120 },
+      { title: 'Land Owner', render: (data) => (data?.landOwner?.firstname), key: 'landOwner', width: 120 },
       { title: 'Hectares', render: (data) => (data?.hectares), key: 'hectares', width: 120 },
 
       {
@@ -907,7 +908,7 @@ const DashboardPage = ({ onLogout, visible }) => {
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                 <Title level={3} >Farm Coordinates</Title>
                 {isAdmin && <div style={{ marginLeft: 'auto' }}>
-                  <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddFarmlandClick}>Add Farmland</Button>
+                  <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddFarmlandClick}>Add Farm Coordinates</Button>
                 </div>}
               </div>
               <Table dataSource={farmLands} columns={farmLandColumns} pagination={{
@@ -974,7 +975,7 @@ const DashboardPage = ({ onLogout, visible }) => {
             <Input />
           </Form.Item>
           
-          <Form.Item label="User ID" name="userId" rules={[{ required: true }]}>
+          <Form.Item label="User ID" name="userId" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Address" name="address" rules={[{ required: true }]}>
@@ -983,7 +984,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: true }]}>
+          <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Total Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
@@ -1026,7 +1027,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Land Owner" name="landOwner" rules={[{ required: true }]}>
+          <Form.Item label="Land Owner" name="landOwner" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Total Hectares" name="hectares" rules={[{ required: true }]}>
@@ -1058,7 +1059,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         <Form onFinish={handleFarmLandModalSubmit}>
           
           
-          <Form.Item label="Land Lords User ID" name="landOwner" rules={[{ required: true }]}>
+          <Form.Item label="Land Lords User ID (not required)" name="landOwner" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Latitude" name="xAxis" rules={[{ required: true }]}>
