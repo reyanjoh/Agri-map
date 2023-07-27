@@ -34,6 +34,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   
   const [isAddMortgageLandModalVisible, setIsAddMortgageLandModalVisible] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
 
   const fileInputRef = useRef(null);
@@ -203,6 +204,48 @@ const DashboardPage = ({ onLogout, visible }) => {
     // setFarmers(updatedFarmers);
   };
 
+
+  const handleRemoveMortgageLand = (record) => {
+    console.log(record._id);
+
+    fetch(`${server}/morgage/delete-mortgaged-land/${record._id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    // const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
+    // setFarmers(updatedFarmers);
+  };
+
+  
+  const handleFarmCoordinatesRemove = (record) => {
+    console.log(record._id);
+
+    fetch(`${server}/landCoordinates/delete-land/${record._id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    
+
+    // const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
+    // setFarmers(updatedFarmers);
+  };
+
   const removeFile = () => {
     setExcelFile(null);
     setTypeError(null);
@@ -229,6 +272,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       userInfo: values.userId,
       address: values.address,
       phoneNumber: values.phoneNumber,
+      landCoordinates: values.landCoordinates,
       totalHectaresOwned: values.totalHectaresOwned,
       proofOfOwnership: values.proofOfOwnership
     };
@@ -574,7 +618,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         ),
         width: 100,
       },
-      {
+      { 
         title: '',
         dataIndex: 'actions',
         key: 'actions',
@@ -622,7 +666,7 @@ const DashboardPage = ({ onLogout, visible }) => {
               title="Are you sure?"
               okText="Yes"
               cancelText="No"
-              onConfirm={() => handleRemoveClick(record)}
+              onConfirm={() => handleFarmCoordinatesRemove(record)}
             >
               <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
@@ -663,23 +707,41 @@ const DashboardPage = ({ onLogout, visible }) => {
               title="Are you sure?"
               okText="Yes"
               cancelText="No"
-              onConfirm={() => handleRemoveClick(record)}
+              onConfirm={() => handleRemoveMortgageLand(record)}
             >
-              <Text type="danger" style={{ cursor: 'pointer' }}>
+              {isAdmin && <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
-              </Text>
+              </Text>}
             </Popconfirm>
           </>
         ),
         width: 100,
       },
-    ];
+    ]; 
+    const [locations, setLocations] = useState([]);
 
-    const locations = [
-      { lat: 14.599512, lon: 120.984222 },
-      { lat: 13.599512, lon: 100.484222 },
-      // Add more locations as needed
-    ];
+    useEffect(() => {
+      fetch(`${server}/landCoordinates/view-lands`, {
+        method: 'GET'
+      }).then( res => res.json())
+      .then(data => {
+        console.log(data);
+        setLocations(data);
+  
+  
+      })
+      .catch((e) => {
+        return(e)
+      })
+
+      
+    }, []);
+
+    // const locations = [
+    //   { lat: 14.599512, lon: 120.984222 },
+    //   { lat: 13.599512, lon: 100.484222 },
+    //   // Add more locations as needed
+    // ];
     
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -722,15 +784,16 @@ const DashboardPage = ({ onLogout, visible }) => {
             </>
           )}
 
-          {showFarmersTable && (
+          {showFarmersTable &&  (
             <>
               <Card>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                  <Title level={3} >List of Farmers</Title>
-                  <div style={{ marginLeft: 'auto' }}>
-                    <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add farmer</Button>
-                  </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <Title level={3} >List of Farmers</Title>
+                
+                <div style={{ marginLeft: 'auto' }}>
+                  {isAdmin && <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add farmer</Button>}
                 </div>
+              </div>
                 <Table dataSource={data} columns={columns} pagination={{
                   total: meta?.total ? meta?.total : 0,
                   pageSize: 5,
@@ -905,6 +968,9 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
+          <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
           <Form.Item label="Total Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
@@ -939,7 +1005,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Location/address" name="location" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Coordinates ID" name="coordinates" placeholer="test" rules={[{ required: true }]}>
+          <Form.Item label="Coordinates ID" name="coordinates" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
@@ -1031,7 +1097,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              Add farmer
+              Add User
             </Button>
           </Form.Item>
         </Form>

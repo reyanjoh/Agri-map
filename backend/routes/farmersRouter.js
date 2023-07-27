@@ -31,6 +31,7 @@ router.post('/add-farmer', (req, res) => {
         userInfo: req.body.userInfo,
         address: req.body.address,
         phoneNumber: req.body.phoneNumber,
+        landCoordinates: req.body.landCoordinates,
         totalHectaresOwned: req.body.totalHectaresOwned,
         DA_referenceNumber: req.body.DA_referenceNumber,
         proofOfOwnership: req.body.proofOfOwnership

@@ -22,12 +22,13 @@ export default class AllFarmsMap extends React.Component {
         anchor: [0.5, 32],
         anchorXUnits: 'fraction',
         anchorYUnits: 'pixels',
-        src: 'marker.jpg',
+        src: 'marker.png',
+        scale: 0.08,
       }),
     });
 
     const features = locations.map(location => {
-      const posBg = proj.fromLonLat([location.lon, location.lat]);
+      const posBg = proj.fromLonLat([location.yAxis, location.xAxis]);
 
       const pinFeature = new Feature({
         geometry: new Point(posBg),
@@ -45,14 +46,14 @@ export default class AllFarmsMap extends React.Component {
     });
 
     this.state = {
-      center: proj.fromLonLat([0, 0]),
+      center: proj.fromLonLat([8.152875543878448, 125.12679604970701]),
       zoom: 2,
       myMap: new Map({
         target: null,
         layers: [new TileLayer({ source: new OSM() }), this.pinLayer],
         view: new View({
           center: proj.fromLonLat([0, 0]),
-          zoom: 2,
+          zoom: 3,
         }),
       }),
     };
