@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Space, Card, Popconfirm } from 'antd';
+import { Layout, Menu, Typography, Table, Button, Modal, message,Form, Input, Upload, Space, Card, Popconfirm } from 'antd';
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
@@ -269,39 +269,35 @@ const DashboardPage = ({ onLogout, visible }) => {
   
 
   const handleModalSubmit = (values) => {
+    const { proofOfOwnership, ...rest } = values;
+  
     const newFarmer = {
-      DA_referenceNumber: values.DA_referenceNumber,
-      userInfo: values.userId,
-      address: values.address,
-      phoneNumber: values.phoneNumber,
-      landCoordinates: values.landCoordinates,
-      totalHectaresOwned: values.totalHectaresOwned,
-      proofOfOwnership: values.proofOfOwnership
+      ...rest, // Spread all other fields except proofOfOwnership
+      proofOfOwnership, // Use the extracted proofOfOwnership
     };
-
+  
     console.log(newFarmer);
-
+  
     fetch(`${server}/farmers/add-farmer`, {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(newFarmer)
-    }).then( res => res.json())
+    })
+    .then(res => res.json())
     .then(data => {
       console.log(data);
       window.location.reload();
-
     })
     .catch((e) => {
-      return(e)
-    })
-
+      console.error(e);
+    });
+  
     setFarmers([...farmers, newFarmer]);
     setIsModalVisible(false);
     setShowFarmersTable(true);
   };
-
-
   
+
 
   const handleAddMortgageLandModalSubmit = (values) => {
     const newMortgageLand = {
@@ -491,6 +487,20 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowStats(false);
     setShowUsersTable(true);
     setShowland(false);
+  };
+
+
+  const props = {
+    beforeUpload: (file) => {
+      const isPNG = file.type === 'image/png';
+      if (!isPNG) {
+        message.error(`${file.name} is not a png file`);
+      }
+      return isPNG || Upload.LIST_IGNORE;
+    },
+    onChange: (info) => {
+      console.log(info.fileList);
+    },
   };
 
   useEffect(() => {
@@ -995,10 +1005,11 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Total Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-
-          <Form.Item label="Proof Of Ownership (drive link)" name="proofOfOwnership" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
+          <Form.Item label="Proof Of Ownership" name="proofOfOwnership" rules={[{ required: true }]}>
+          <Upload {...props} name="proofOfOwnership"> {/* Add the name prop here */}
+            <Button icon={<UploadOutlined />}>Upload png only</Button>
+          </Upload>
+        </Form.Item>
           {/* <Form.Item label="Proof Of Ownership" name="proofOfOwnership">
             <Upload>
               <Button icon={<UploadOutlined />}>Click to Upload</Button>

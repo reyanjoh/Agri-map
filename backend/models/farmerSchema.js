@@ -27,7 +27,7 @@ const farmerSchema = new mongoose.Schema({
         required: true
     },
     proofOfOwnership:{
-        type: String,
+        type: Object,
         required: true
     }
 
