@@ -42,6 +42,10 @@ const MortgagedSchema = new mongoose.Schema({
     landOwner:{
         type: Schema.Types.ObjectId,
         ref: 'User'
+    },
+    landOwnerInString:{
+        type: String,
+        required: true
     }
 
 }, { timestamps: true })
