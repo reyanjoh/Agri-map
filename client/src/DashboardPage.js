@@ -189,22 +189,22 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   const handleRemoveClick = (record) => {
     console.log(record._id);
-
+  
     fetch(`${server}/farmers/delete-farmer/${record._id}`, {
       method: 'DELETE', 
     })
-    .then( res => res.json())
+    .then(res => res.json())
     .then(data => {
       console.log(`deleted ${data}`);
-
+      // Item successfully removed, now reload the page to reflect the changes.
+      window.location.reload();
     })
     .catch((e) => {
-      return(e)
-    })
-
-    // const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
-    // setFarmers(updatedFarmers);
+      console.error(e);
+      // Handle any errors that occurred during the removal process.
+    });
   };
+  
 
 
   const handleRemoveMortgageLand = (record) => {
@@ -288,6 +288,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     }).then( res => res.json())
     .then(data => {
       console.log(data);
+      window.location.reload();
 
     })
     .catch((e) => {
@@ -610,31 +611,32 @@ const DashboardPage = ({ onLogout, visible }) => {
   };
   
 
-    const columns = [
-      { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
-      { title: 'Reference Number',  render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
-      { title: 'First Name', render: (data) => (data?.userInfo?.firstname), key: 'username', width: 120 },
-      { title: 'Last Name', render: (data) => (data?.userInfo?.lastname), width: 120 },
-      { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
-      { title: 'Phone Number',render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
-      
-      { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
-      {
-        title: '',
-        key: 'viewLand',
-        align: 'center',
-        render: (data) => (
-          <Button type="primary" onClick={() => handleViewLandClick(data)}>View Land</Button>
-        ),
-        width: 100,
-      },
-      { 
-        title: '',
-        dataIndex: 'actions',
-        key: 'actions',
-        render: (_, record) => (
-          <>
-            {isAdmin && <Popconfirm
+  const columns = [
+    { title: 'ID', render: (data) => (data?._id), key: 'id', width: 120 },
+    { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
+    { title: 'First Name', render: (data) => (data?.userInfo?.firstname), key: 'username', width: 120 },
+    { title: 'Last Name', render: (data) => (data?.userInfo?.lastname), key: 'lastname', width: 120 },
+    { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
+    { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
+    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
+    {
+      title: '',
+      key: 'viewLand',
+      align: 'center',
+      render: (data) => (
+        <Button type="primary" onClick={() => handleViewLandClick(data)}>View Land</Button>
+      ),
+      width: 100,
+    },
+    { 
+      title: 'Action',
+      dataIndex: 'actions',
+      fixed:'right',
+      key: 'actions',
+      render: (_, record) => (
+        <>
+          {isAdmin && (
+            <Popconfirm
               placement="topRight"
               title="Are you sure?"
               okText="Yes"
@@ -644,12 +646,14 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
               </Text>
-            </Popconfirm>}
-          </>
-        ),
-        width: 100,
-      },
-    ];
+            </Popconfirm>
+          )}
+        </>
+      ),
+      width: 120,
+    },
+  ];
+  
     
     const farmLandColumns = [
       { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
@@ -694,7 +698,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
       { title: 'Mortgaged To',  render: (data) => (data?.mortgagedTo), key: 'mortgagedTo', width: 150 },
       { title: 'Location/Address',  render: (data) => (data?.location), key: 'location', width: 150 },
-      { title: 'Contact Numbe', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 120 },
+      { title: 'Contact Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber', },
       { title: 'Land Owner', render: (data) => (data?.landOwner?.firstname), key: 'landOwner', width: 120 },
       { title: 'Hectares', render: (data) => (data?.hectares), key: 'hectares', width: 120 },
 
@@ -964,6 +968,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
       </Layout>
 
+      {/* lis of farmer nga add form */}
       <Modal
         title="Add Farmer"
         open={isModalVisible}
