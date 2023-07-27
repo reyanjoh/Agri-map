@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     userRole: {
         type: String,
         default: "FARMER",
-        enum: [ "NON_ADMIN_DA_EMPLOYEE", "DA_ADMIN", "FARMER", "ROLE.SUPER_ADMIN"],
+        enum: [ "NON_ADMIN_DA_EMPLOYEE", "DA_ADMIN", "FARMER", "ROLE.SUPER_ADMIN", "ADMIN"],
     }
 
 }, { timestamps: true })

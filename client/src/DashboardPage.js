@@ -50,6 +50,8 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [username, setUsername] = useState('');
   const [lastname, setLastname] = useState('');
   const [firstname, setFirstname] = useState('');
+  const [userRole, setUserRole] = useState('');
+
   const [users, setUsers] = useState([]); // Store the user data
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
   const [showland, setShowland] = useState(false);
@@ -368,6 +370,8 @@ const DashboardPage = ({ onLogout, visible }) => {
       password: values.password,
       lastname: values.lastname,
       firstname: values.firstname,
+      userRole: values.userRole,
+
     };
 
     fetch(`${server}/add-user`, {
@@ -1098,6 +1102,13 @@ const DashboardPage = ({ onLogout, visible }) => {
             <Input
               value={lastname}
               onChange={(e) => setLastname(e.target.value)}
+            />
+          </Form.Item>
+
+          <Form.Item label="User Role [ADMIN/FARMER]" name="userRole">
+            <Input
+              value={userRole}
+              onChange={(e) => setUserRole(e.target.value)}
             />
           </Form.Item>
           
