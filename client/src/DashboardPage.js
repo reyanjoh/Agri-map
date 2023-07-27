@@ -840,11 +840,11 @@ const DashboardPage = ({ onLogout, visible }) => {
                   <Title level={3} >Statistics Report</Title>
                 </div>
                 <form className="form-group custom-form" onSubmit={handleFileSubmit}>
-                  <Space>
+                  {isAdmin && <Space>
                     <input ref={fileInputRef} type="file" className="form-control" required onChange={handleFile} />
                     <Button type="primary" value='small' htmlType="submit">Upload</Button>
                     {/* <Button type='primary' value='small' danger onClick={removeFile}>Remove</Button> */}
-                  </Space>
+                  </Space>}
                   {typeError && (
                     <div className="alert alert-danger" role="alert">{typeError}</div>
                   )}
