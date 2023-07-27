@@ -34,4 +34,16 @@ router.get('/view-land/:_id', (req, res) => {
     .catch(err => res.status(400).json('' + err))
 })
 
+router.delete('/delete-land/:_id', async (req, res) =>{
+
+    LandCoordinates.deleteOne(req.params)
+    .then(result =>{
+        console.log(result);
+        res.status(200).json(result)
+    })
+    .catch(e => {
+        console.log(e);
+    })
+})
+
 module.exports = router;

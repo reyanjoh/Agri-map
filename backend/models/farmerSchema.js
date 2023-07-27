@@ -17,7 +17,7 @@ const farmerSchema = new mongoose.Schema({
     totalHectaresOwned:{
         type: Number,
         required: true
-    },
+    },  
     landCoordinates: {
         type: Schema.Types.ObjectId,
         ref: 'LandCoordinates'

@@ -16,7 +16,6 @@ const LoginPage = () => {
   const handleSubmit = (values) => {
     setLoading(true);
 
-    
 
     setTimeout(() => {
       setLoading(false);
@@ -28,9 +27,27 @@ const LoginPage = () => {
       body: JSON.stringify(values)
     }).then( res => res.json())
     .then(data => {
-        localStorage.setItem('userName', data.username)
-        localStorage.setItem('userRole', data.userRole)
-        window.location.href = '/';
+      console.log(data);
+
+      if(!data){
+          console.log(`sad`);
+      }
+      if(data.username === values.username){
+        console.log('yee username');
+        if(data.password === values.password){
+          console.log(`${values.password} same with ${data.password}`);
+          localStorage.setItem('userName', data.username)
+          localStorage.setItem('userRole', data.userRole)
+          window.location.href = '/';
+        }else{
+          console.log(`engk enk`);
+        }
+        
+      }else{
+        console.log(`engk enkkkkk`);
+      }
+
+      
     })
     .catch((e) => {
       return(e)

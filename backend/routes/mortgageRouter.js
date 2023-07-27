@@ -41,4 +41,16 @@ router.post('/add-land', (req, res) => {
     .catch(err => res.status(400).json('' + err))
 })
 
+router.delete('/delete-mortgaged-land/:_id', async (req, res) =>{
+
+    Mortgaged.deleteOne(req.params)
+    .then(result =>{
+        console.log(result);
+        res.status(200).json(result)
+    })
+    .catch(e => {
+        console.log(e);
+    })
+})
+
 module.exports = router;

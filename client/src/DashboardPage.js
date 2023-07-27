@@ -34,6 +34,7 @@ const DashboardPage = ({ onLogout, visible }) => {
 
   
   const [isAddMortgageLandModalVisible, setIsAddMortgageLandModalVisible] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
 
   const fileInputRef = useRef(null);
@@ -49,6 +50,8 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [username, setUsername] = useState('');
   const [lastname, setLastname] = useState('');
   const [firstname, setFirstname] = useState('');
+  const [userRole, setUserRole] = useState('');
+
   const [users, setUsers] = useState([]); // Store the user data
   const [showUsersTable, setShowUsersTable] = useState(false); // Control the visibility of the users table
   const [showland, setShowland] = useState(false);
@@ -203,6 +206,48 @@ const DashboardPage = ({ onLogout, visible }) => {
     // setFarmers(updatedFarmers);
   };
 
+
+  const handleRemoveMortgageLand = (record) => {
+    console.log(record._id);
+
+    fetch(`${server}/morgage/delete-mortgaged-land/${record._id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    // const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
+    // setFarmers(updatedFarmers);
+  };
+
+  
+  const handleFarmCoordinatesRemove = (record) => {
+    console.log(record._id);
+
+    fetch(`${server}/landCoordinates/delete-land/${record._id}`, {
+      method: 'DELETE', 
+    })
+    .then( res => res.json())
+    .then(data => {
+      console.log(`deleted ${data}`);
+
+    })
+    .catch((e) => {
+      return(e)
+    })
+
+    
+
+    // const updatedFarmers = farmers.filter((farmer) => farmer.number !== record.number);
+    // setFarmers(updatedFarmers);
+  };
+
   const removeFile = () => {
     setExcelFile(null);
     setTypeError(null);
@@ -229,6 +274,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       userInfo: values.userId,
       address: values.address,
       phoneNumber: values.phoneNumber,
+      landCoordinates: values.landCoordinates,
       totalHectaresOwned: values.totalHectaresOwned,
       proofOfOwnership: values.proofOfOwnership
     };
@@ -324,6 +370,8 @@ const DashboardPage = ({ onLogout, visible }) => {
       password: values.password,
       lastname: values.lastname,
       firstname: values.firstname,
+      userRole: values.userRole,
+
     };
 
     fetch(`${server}/add-user`, {
@@ -443,6 +491,12 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowUsersTable(true);
     setShowland(false);
   };
+
+  useEffect(() => {
+
+    localStorage.getItem('userRole') === 'ADMIN' ?  setIsAdmin(true) :  setIsAdmin(false)
+    
+  }, []);
   
   useEffect(() => {
     const savedFarmers = localStorage.getItem('farmers');
@@ -574,13 +628,13 @@ const DashboardPage = ({ onLogout, visible }) => {
         ),
         width: 100,
       },
-      {
+      { 
         title: '',
         dataIndex: 'actions',
         key: 'actions',
         render: (_, record) => (
           <>
-            <Popconfirm
+            {isAdmin && <Popconfirm
               placement="topRight"
               title="Are you sure?"
               okText="Yes"
@@ -590,7 +644,7 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
               </Text>
-            </Popconfirm>
+            </Popconfirm>}
           </>
         ),
         width: 100,
@@ -617,17 +671,17 @@ const DashboardPage = ({ onLogout, visible }) => {
         key: 'actions',
         render: (_, record) => (
           <>
-            <Popconfirm
+            { isAdmin && <Popconfirm
               placement="topRight"
               title="Are you sure?"
               okText="Yes"
               cancelText="No"
-              onConfirm={() => handleRemoveClick(record)}
+              onConfirm={() => handleFarmCoordinatesRemove(record)}
             >
               <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
               </Text>
-            </Popconfirm>
+            </Popconfirm>}
           </>
         ),
         width: 100,
@@ -663,21 +717,44 @@ const DashboardPage = ({ onLogout, visible }) => {
               title="Are you sure?"
               okText="Yes"
               cancelText="No"
-              onConfirm={() => handleRemoveClick(record)}
+              onConfirm={() => handleRemoveMortgageLand(record)}
             >
-              <Text type="danger" style={{ cursor: 'pointer' }}>
+              {isAdmin && <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
-              </Text>
+              </Text>}
             </Popconfirm>
           </>
         ),
         width: 100,
       },
-    ];
+    ]; 
+    // const [locations, setLocations] = useState([]);
+
+    // useEffect(() => {
+    //   fetch(`${server}/landCoordinates/view-lands`, {
+    //     method: 'GET'
+    //   }).then( res => res.json())
+    //   .then(data => {
+    //     console.log(data);
+    //     setLocations(data);
+  
+  
+    //   })
+    //   .catch((e) => {
+    //     return(e)
+    //   })
+
+      
+    // }, []);
 
     const locations = [
-      { lat: 14.599512, lon: 120.984222 },
-      { lat: 13.599512, lon: 100.484222 },
+      { lat: 7.725380, lon:124.752999 },
+      { lat: 7.775680, lon:124.755799 },
+      { lat: 7.775280, lon:124.752399 },
+      { lat: 7.775290, lon:124.785399 },
+      { lat: 7.774280, lon:124.712399 },
+      { lat: 7.864280, lon:124.65512 },
+
       // Add more locations as needed
     ];
     
@@ -717,20 +794,21 @@ const DashboardPage = ({ onLogout, visible }) => {
         {showDashboard && (
             <>
               <Card style={{ height: '90dvh' }}>
-                <AllFarmsMap locations={locations} />
+            { locations && <AllFarmsMap locations={locations} />}
               </Card>
             </>
           )}
 
-          {showFarmersTable && (
+          {showFarmersTable &&  (
             <>
               <Card>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                  <Title level={3} >List of Farmers</Title>
-                  <div style={{ marginLeft: 'auto' }}>
-                    <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add farmer</Button>
-                  </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <Title level={3} >List of Farmers</Title>
+                
+                <div style={{ marginLeft: 'auto' }}>
+                  {isAdmin && <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add farmer</Button>}
                 </div>
+              </div>
                 <Table dataSource={data} columns={columns} pagination={{
                   total: meta?.total ? meta?.total : 0,
                   pageSize: 5,
@@ -743,9 +821,9 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                   <Title level={3} >Mortgage Land</Title>
-                  <div style={{ marginLeft: 'auto' }}>
+                  {isAdmin && <div style={{ marginLeft: 'auto' }}>
                     <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddMortgageLand}>Add Mortgage Land</Button>
-                  </div>
+                  </div>}
                 </div>
                 <Table  dataSource={dataSource}  columns={cols} pagination={{
                   total: meta?.total ? meta?.total : 0,
@@ -828,9 +906,9 @@ const DashboardPage = ({ onLogout, visible }) => {
             <Card>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                 <Title level={3} >Farm Coordinates</Title>
-                <div style={{ marginLeft: 'auto' }}>
+                {isAdmin && <div style={{ marginLeft: 'auto' }}>
                   <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddFarmlandClick}>Add Farmland</Button>
-                </div>
+                </div>}
               </div>
               <Table dataSource={farmLands} columns={farmLandColumns} pagination={{
                 total: meta?.total ? meta?.total : 0,
@@ -844,9 +922,9 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                   <Title level={3}>List of Users</Title>
-                  <div style={{ marginLeft: 'auto' }}>
+                  { isAdmin && <div style={{ marginLeft: 'auto' }}>
                     <Button type="primary" onClick={() => setIsAddUserModalVisible(true)}>Add</Button>
-                  </div>
+                  </div>}
                 </div>
                 <Table dataSource={users} pagination={{
                   total: meta?.total ? meta?.total : 0,
@@ -858,11 +936,11 @@ const DashboardPage = ({ onLogout, visible }) => {
                   <Column title="Last Name" dataIndex="lastname" key="lastname" />
                   <Column title="First Name" dataIndex="firstname" key="firstname" />
                   <Column
-                    title="Actions"
+                    title=""
                     key="actions"
                     render={(text, user) => (
                       <>
-                        <Popconfirm
+                      { isAdmin && <Popconfirm
                           placement="topRight"
                           title="Are you sure?"
                           okText="Yes"
@@ -872,7 +950,7 @@ const DashboardPage = ({ onLogout, visible }) => {
                           <Text type="danger" style={{ cursor: 'pointer' }}>
                             Remove
                           </Text>
-                        </Popconfirm>
+                        </Popconfirm>}
                       </>
                     )}
                   />
@@ -903,6 +981,9 @@ const DashboardPage = ({ onLogout, visible }) => {
             <Input />
           </Form.Item>
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Total Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
@@ -939,7 +1020,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Location/address" name="location" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Coordinates ID" name="coordinates" placeholer="test" rules={[{ required: true }]}>
+          <Form.Item label="Coordinates ID" name="coordinates" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
@@ -1028,10 +1109,17 @@ const DashboardPage = ({ onLogout, visible }) => {
               onChange={(e) => setLastname(e.target.value)}
             />
           </Form.Item>
+
+          <Form.Item label="User Role [ADMIN/FARMER]" name="userRole">
+            <Input
+              value={userRole}
+              onChange={(e) => setUserRole(e.target.value)}
+            />
+          </Form.Item>
           
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              Add farmer
+              Add User
             </Button>
           </Form.Item>
         </Form>
