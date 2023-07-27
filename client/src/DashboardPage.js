@@ -12,7 +12,7 @@ import Mapa from "./util/map/Mapa";
 import AllFarmsMap from "./util/map/AllFarmsMap";
 
 
-let environment = '';
+let environment = 'LOCAL';
 let server;
 
 environment === 'LOCAL' ? server = 'http://localhost:5001' : server = process.env.REACT_APP_SERVER;
@@ -308,11 +308,10 @@ const DashboardPage = ({ onLogout, visible }) => {
       phoneNumber: values.phoneNumber,
       hectares: values.hectares,
       location: values.location,
+      landOwnerInString: values.landOwnerInString,
       coordinates: values.coordinates,
-      landOwner: values.landOwner
     };
-
-    console.log(newMortgageLand);
+    
 
     fetch(`${server}/morgage/add-land`, {
       method: 'POST', 
@@ -694,8 +693,8 @@ const DashboardPage = ({ onLogout, visible }) => {
       { title: 'ID',  render: (data) => (data?._id), key: 'id', width: 150 },
       { title: 'Mortgaged To',  render: (data) => (data?.mortgagedTo), key: 'mortgagedTo', width: 150 },
       { title: 'Location/Address',  render: (data) => (data?.location), key: 'location', width: 150 },
-      { title: 'Contact Numbe', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 120 },
-      { title: 'Land Owner', render: (data) => (data?.landOwner?.firstname), key: 'landOwner', width: 120 },
+      { title: 'Contact Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 120 },
+      { title: 'Land Owner', render: (data) => (data?.landOwnerInString), key: 'landOwner', width: 120 },
       { title: 'Hectares', render: (data) => (data?.hectares), key: 'hectares', width: 120 },
 
       {
@@ -984,7 +983,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: false }]}>
+          <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Total Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
@@ -1027,7 +1026,7 @@ const DashboardPage = ({ onLogout, visible }) => {
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Land Owner" name="landOwner" rules={[{ required: false }]}>
+          <Form.Item label="Land Owner" name="landOwnerInString" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Total Hectares" name="hectares" rules={[{ required: true }]}>

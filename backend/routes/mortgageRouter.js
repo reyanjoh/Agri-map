@@ -32,12 +32,14 @@ router.post('/add-land', (req, res) => {
         phoneNumber:req.body.phoneNumber,
         hectares: req.body.hectares,
         location: req.body.location,
+        landOwnerInString: req.body.landOwnerInString,
         coordinates: req.body.coordinates,
-        landOwner: req.body.landOwner
     })
-
+    
     newMortgagedLand.save()
-    .then(() => res.json('newMortgagedLand land added'))
+    .then((res) => {
+        res.json(res)
+    })
     .catch(err => res.status(400).json('' + err))
 })
 
