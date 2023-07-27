@@ -728,30 +728,35 @@ const DashboardPage = ({ onLogout, visible }) => {
         width: 100,
       },
     ]; 
-    const [locations, setLocations] = useState([]);
+    // const [locations, setLocations] = useState([]);
 
-    useEffect(() => {
-      fetch(`${server}/landCoordinates/view-lands`, {
-        method: 'GET'
-      }).then( res => res.json())
-      .then(data => {
-        console.log(data);
-        setLocations(data);
+    // useEffect(() => {
+    //   fetch(`${server}/landCoordinates/view-lands`, {
+    //     method: 'GET'
+    //   }).then( res => res.json())
+    //   .then(data => {
+    //     console.log(data);
+    //     setLocations(data);
   
   
-      })
-      .catch((e) => {
-        return(e)
-      })
+    //   })
+    //   .catch((e) => {
+    //     return(e)
+    //   })
 
       
-    }, []);
+    // }, []);
 
-    // const locations = [
-    //   { lat: 14.599512, lon: 120.984222 },
-    //   { lat: 13.599512, lon: 100.484222 },
-    //   // Add more locations as needed
-    // ];
+    const locations = [
+      { lat: 7.725380, lon:124.752999 },
+      { lat: 7.775680, lon:124.755799 },
+      { lat: 7.775280, lon:124.752399 },
+      { lat: 7.775290, lon:124.785399 },
+      { lat: 7.774280, lon:124.712399 },
+      { lat: 7.864280, lon:124.65512 },
+
+      // Add more locations as needed
+    ];
     
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -789,7 +794,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         {showDashboard && (
             <>
               <Card style={{ height: '90dvh' }}>
-                <AllFarmsMap locations={locations} />
+            { locations && <AllFarmsMap locations={locations} />}
               </Card>
             </>
           )}
