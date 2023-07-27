@@ -487,6 +487,12 @@ const DashboardPage = ({ onLogout, visible }) => {
     setShowUsersTable(true);
     setShowland(false);
   };
+
+  useEffect(() => {
+
+    localStorage.getItem('userRole') === 'ADMIN' ?  setIsAdmin(true) :  setIsAdmin(false)
+    
+  }, []);
   
   useEffect(() => {
     const savedFarmers = localStorage.getItem('farmers');
@@ -624,7 +630,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         key: 'actions',
         render: (_, record) => (
           <>
-            <Popconfirm
+            {isAdmin && <Popconfirm
               placement="topRight"
               title="Are you sure?"
               okText="Yes"
@@ -634,7 +640,7 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
               </Text>
-            </Popconfirm>
+            </Popconfirm>}
           </>
         ),
         width: 100,
@@ -661,7 +667,7 @@ const DashboardPage = ({ onLogout, visible }) => {
         key: 'actions',
         render: (_, record) => (
           <>
-            <Popconfirm
+            { isAdmin && <Popconfirm
               placement="topRight"
               title="Are you sure?"
               okText="Yes"
@@ -671,7 +677,7 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Text type="danger" style={{ cursor: 'pointer' }}>
                 Remove
               </Text>
-            </Popconfirm>
+            </Popconfirm>}
           </>
         ),
         width: 100,
@@ -806,9 +812,9 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                   <Title level={3} >Mortgage Land</Title>
-                  <div style={{ marginLeft: 'auto' }}>
+                  {isAdmin && <div style={{ marginLeft: 'auto' }}>
                     <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddMortgageLand}>Add Mortgage Land</Button>
-                  </div>
+                  </div>}
                 </div>
                 <Table  dataSource={dataSource}  columns={cols} pagination={{
                   total: meta?.total ? meta?.total : 0,
@@ -891,9 +897,9 @@ const DashboardPage = ({ onLogout, visible }) => {
             <Card>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                 <Title level={3} >Farm Coordinates</Title>
-                <div style={{ marginLeft: 'auto' }}>
+                {isAdmin && <div style={{ marginLeft: 'auto' }}>
                   <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddFarmlandClick}>Add Farmland</Button>
-                </div>
+                </div>}
               </div>
               <Table dataSource={farmLands} columns={farmLandColumns} pagination={{
                 total: meta?.total ? meta?.total : 0,
@@ -907,9 +913,9 @@ const DashboardPage = ({ onLogout, visible }) => {
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                   <Title level={3}>List of Users</Title>
-                  <div style={{ marginLeft: 'auto' }}>
+                  { isAdmin && <div style={{ marginLeft: 'auto' }}>
                     <Button type="primary" onClick={() => setIsAddUserModalVisible(true)}>Add</Button>
-                  </div>
+                  </div>}
                 </div>
                 <Table dataSource={users} pagination={{
                   total: meta?.total ? meta?.total : 0,
@@ -921,11 +927,11 @@ const DashboardPage = ({ onLogout, visible }) => {
                   <Column title="Last Name" dataIndex="lastname" key="lastname" />
                   <Column title="First Name" dataIndex="firstname" key="firstname" />
                   <Column
-                    title="Actions"
+                    title=""
                     key="actions"
                     render={(text, user) => (
                       <>
-                        <Popconfirm
+                      { isAdmin && <Popconfirm
                           placement="topRight"
                           title="Are you sure?"
                           okText="Yes"
@@ -935,7 +941,7 @@ const DashboardPage = ({ onLogout, visible }) => {
                           <Text type="danger" style={{ cursor: 'pointer' }}>
                             Remove
                           </Text>
-                        </Popconfirm>
+                        </Popconfirm>}
                       </>
                     )}
                   />
