@@ -618,7 +618,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
     { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
     { title: 'Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
-    { title: 'Proof Of Ownership', render: (data) => (data?.proofOfOwnership), key: 'proofOfOwnership', align: 'center', width: 150 },
+    { title: 'Proof Of Farm Ownership', render: (data) => (data?.proofOfOwnership), key: 'proofOfOwnership', align: 'center', width: 150 },
 
     {
       title: '',
