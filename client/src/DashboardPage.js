@@ -609,15 +609,17 @@ const DashboardPage = ({ onLogout, visible }) => {
     }
   };
   
-
+  
   const columns = [
     { title: 'ID', render: (data) => (data?._id), key: 'id', width: 120 },
-    { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
+    { title: 'Reference No', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
     { title: 'First Name', render: (data) => (data?.userInfo?.firstname), key: 'username', width: 120 },
     { title: 'Last Name', render: (data) => (data?.userInfo?.lastname), key: 'lastname', width: 120 },
     { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
     { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
-    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
+    { title: 'Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
+    { title: 'Proof Of Ownership', render: (data) => (data?.proofOfOwnership), key: 'proofOfOwnership', align: 'center', width: 150 },
+
     {
       title: '',
       key: 'viewLand',
@@ -628,7 +630,7 @@ const DashboardPage = ({ onLogout, visible }) => {
       width: 100,
     },
     { 
-      title: 'Action',
+      title: '',
       dataIndex: 'actions',
       fixed:'right',
       key: 'actions',
