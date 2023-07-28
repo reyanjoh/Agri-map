@@ -288,8 +288,8 @@ const DashboardPage = ({ onLogout, visible }) => {
     }).then( res => res.json())
     .then(data => {
       console.log(data);
-      // window.location.reload();
-
+    }).then(() =>{
+      window.location.reload()
     })
     .catch((e) => {
       return(e)
