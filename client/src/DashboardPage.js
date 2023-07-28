@@ -12,7 +12,7 @@ import Mapa from "./util/map/Mapa";
 import AllFarmsMap from "./util/map/AllFarmsMap";
 
 
-let environment = '';
+let environment = 'LOCAL';
 let server;
 
 environment === 'LOCAL' ? server = 'http://localhost:5001' : server = process.env.REACT_APP_SERVER;
@@ -288,7 +288,7 @@ const DashboardPage = ({ onLogout, visible }) => {
     }).then( res => res.json())
     .then(data => {
       console.log(data);
-      window.location.reload();
+      // window.location.reload();
 
     })
     .catch((e) => {
