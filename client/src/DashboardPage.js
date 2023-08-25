@@ -4,14 +4,14 @@ import { Layout, Menu, Typography, Table, Button, Modal, Form, Input, Upload, Sp
 import { DesktopOutlined, PieChartOutlined, FileOutlined, TeamOutlined, UserOutlined, LogoutOutlined, BorderBottomOutlined, LineChartOutlined, UploadOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import useFetch from './util/useFetch';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { parseISO, format } from 'date-fns';
-
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import * as proj from 'ol/proj';
 import Mapa from "./util/map/Mapa";
 import AllFarmsMap from "./util/map/AllFarmsMap";
-
-
+import RegistrationForm from './registrationForm';
+import ViewDrawer from './ViewDrawer';
+import moment from 'moment';
 let environment = '';
 let server;
 
@@ -25,6 +25,22 @@ const { Title, Text } = Typography;
 const { Column } = Table;
 
 const DashboardPage = ({ onLogout, visible }) => {
+  const initialFormData = {
+    lastName: 'Doe',
+    firstName: 'John',
+    middleName: 'Smith',
+    titleNo: '12345',
+    lotPlanNo: '6789',
+    trackbackTCT: '9876',
+    registrationDate: moment('2023-08-25', 'YYYY-MM-DD'), // Replace with a valid date string
+    address: '123 Main Street',
+    city: 'Sample City',
+    municipality: 'Sample Municipality',
+    barangay: 'Sample Barangay',
+    cityProvince: 'Sample City/Province',
+    propertyMunicipality: 'Sample Property Municipality',
+    propertyBarangay: 'Sample Property Barangay',
+  };
   const [meta, setMeta] = useState(null);
   const [farmers, setFarmers] = useState([]);
   const [stats, setStats] = useState([]);
@@ -32,11 +48,28 @@ const DashboardPage = ({ onLogout, visible }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isFarmlandModalVisible, setIsFarmlandModalVisible] = useState(false);
 
-  
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [formValues, setFormValues] = useState(initialFormData);
+
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerVisible(false);
+  };
+  const showForm = () => {
+    setIsFormVisible(true);
+  };
+
+  const closeForm = () => {
+    setIsFormVisible(false);
+  };
   const [isAddMortgageLandModalVisible, setIsAddMortgageLandModalVisible] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-
+  const [form] = Form.useForm();
   const fileInputRef = useRef(null);
 
   const [isAddUserModalVisible, setIsAddUserModalVisible] = useState(false);
@@ -146,6 +179,9 @@ const DashboardPage = ({ onLogout, visible }) => {
     setIsModal(false);
   };
 
+
+  
+  
   
 
   const handleFarmLandModalClose = () => {
@@ -203,6 +239,19 @@ const DashboardPage = ({ onLogout, visible }) => {
       console.error(e);
       // Handle any errors that occurred during the removal process.
     });
+  };
+
+  const renderChart = () => {
+    return (
+      <BarChart width={1000} height={400} data={datas}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="type" />
+        <YAxis dataKey='pawn' />
+        <Tooltip />
+        {/* <Legend /> */}
+        <Bar dataKey="pawn" fill="#75AA3F" width='50' />
+      </BarChart>
+    );
   };
   
 
@@ -612,26 +661,38 @@ const DashboardPage = ({ onLogout, visible }) => {
   
 
   const columns = [
-    { title: 'ID', render: (data) => (data?._id), key: 'id', width: 120 },
-    { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
+    // { title: 'ID', render: (data) => (data?._id), key: 'id', width: 120 },
+    // { title: 'Reference Number', render: (data) => (data?.DA_referenceNumber), key: 'referenceNumber', width: 150 },
+    {
+      title: 'No',
+      key: 'index',
+      width: '5%',
+      render: (text, record, index) => index + 1,
+    },
     { title: 'First Name', render: (data) => (data?.userInfo?.firstname), key: 'username', width: 120 },
     { title: 'Last Name', render: (data) => (data?.userInfo?.lastname), key: 'lastname', width: 120 },
-    { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250, align: 'center' },
+    { title: 'Address', render: (data) => (data?.address), key: 'address', width: 250,  },
     { title: 'Phone Number', render: (data) => (data?.phoneNumber), key: 'phoneNumber', width: 150 },
-    { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
+    { title: 'Zipcode', },
+
+    // { title: 'Total Hectares Owned', render: (data) => (data?.totalHectaresOwned), key: 'totalHectaresOwned', align: 'center', width: 150 },
     {
       title: '',
-      key: 'viewLand',
+      key: 'viewDetails',
       align: 'center',
       render: (data) => (
-        <Button type="primary" onClick={() => handleViewLandClick(data)}>View Land</Button>
-      ),
+        <>
+        <Button type="primary" onClick={showDrawer}>
+        View Details
+      </Button>
+      <ViewDrawer visible={drawerVisible} onClose={closeDrawer} formData={formValues} />
+      </>),
       width: 100,
     },
     { 
       title: 'Action',
       dataIndex: 'actions',
-      fixed:'right',
+      // fixed:'right',
       key: 'actions',
       render: (_, record) => (
         <>
@@ -762,6 +823,70 @@ const DashboardPage = ({ onLogout, visible }) => {
 
       // Add more locations as needed
     ];
+
+    const datas = [
+      {
+        type: 'Jan',
+       pawn: 38,
+      },
+      {
+        type: 'Feb',
+        pawn: 52,
+      },
+      {
+        type: 'Mar',
+        pawn: 61,
+      },
+      {
+        type: 'Apr',
+        pawn: 145,
+      },
+      {
+        type: 'May',
+        pawn: 48,
+      },
+      {
+        type: 'Jun',
+        pawn: 38,
+      },
+      {
+        type: 'July',
+        pawn: 38,
+      },
+      {
+        type: 'Aug',
+        pawn: 38,
+      },
+      {
+        type: 'Sept',
+        pawn: 38,
+      },
+      {
+        type: 'Oct',
+        pawn: 38,
+      },
+      {
+        type: 'Nov',
+        pawn: 38,
+      },
+      {
+        type: 'Dec',
+        pawn: 38,
+      },
+    ];
+
+    useEffect(() => {
+      // Retrieve saved form data from local storage
+      const savedFormData = localStorage.getItem('registrationFormData');
+      if (savedFormData) {
+        // Pre-fill the form with saved data
+        const parsedData = JSON.parse(savedFormData);
+        // Set form data using setFieldsValue
+        form.setFieldsValue(parsedData);
+      }
+    }, []);
+
+
     
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -774,18 +899,18 @@ const DashboardPage = ({ onLogout, visible }) => {
         <br />
         <a href="/"><h2 style={{ height: '32px', margin: '16px', color: 'white', textDecoration: 'none'}}>Dashboard</h2></a>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" >
-          <Menu.Item icon={<TeamOutlined />} onClick={handleFarmersClick}>
+          {/* <Menu.Item icon={<TeamOutlined />} onClick={handleFarmersClick}>
             Farmers
           </Menu.Item>  
           <Menu.Item icon={<BorderOuterOutlined />}onClick={handleShowlandClick}>
             Mortgage Land
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item icon={<LineChartOutlined />} onClick={handleStatsClick}>
             Statistics Report
           </Menu.Item>
-          <Menu.Item icon={<BorderOuterOutlined />} onClick={handleFarmLandsClick}>
+          {/* <Menu.Item icon={<BorderOuterOutlined />} onClick={handleFarmLandsClick}>
             Farm Coordinates
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item icon={<UserOutlined />} onClick={handleUsersClick}>
             Users
           </Menu.Item>
@@ -798,11 +923,33 @@ const DashboardPage = ({ onLogout, visible }) => {
         <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
         {showDashboard && (
             <>
-              <Card style={{ height: '90dvh' }}>
-            { locations && <AllFarmsMap locations={locations} />}
+                     <Space direction="horizontal" size={'middle'} style={{ width: '100%', marginLeft:'20px' }}>
+              <Card  hoverable title="Registered Farmers" onClick={handleFarmersClick}  style={{ width: 370 }}>
+              512 
               </Card>
+              <Card hoverable onClick={handleShowlandClick} title="Mortgage Land" style={{ width: 370 }}>
+                24
+              </Card>
+              <Card  hoverable onClick={handleShowlandClick} title="Mortgage Land" style={{ width:370 }}>
+              4.70% 
+              </Card>
+          </Space>
+          <br/>
+          <br/>
+          <Space style={{ width: '96%', marginLeft:'20px' }} direction="vertical">
+          <Card style={{height:'500px'}}>
+              <Title level={5} >Analytics</Title>
+                 <br/>
+              {renderChart()}
+              </Card>
+          </Space>
+              {/* <Card style={{ height: '90dvh' }}>
+            { locations && <AllFarmsMap locations={locations} />}
+              </Card> */}
             </>
           )}
+
+     
 
           {showFarmersTable &&  (
             <>
@@ -813,6 +960,22 @@ const DashboardPage = ({ onLogout, visible }) => {
                 <div style={{ marginLeft: 'auto' }}>
                   {isAdmin && <Button type='primary' style={{ marginRight: '8px' }} onClick={handleAddClick}>Add farmer</Button>}
                 </div>
+                <div>
+          <Button type="primary" onClick={showForm}>
+       Title Registration 
+          </Button>
+
+      <Modal
+        visible={isFormVisible}
+        // title="Registration Form"
+        onCancel={closeForm}
+        footer={null}
+        width={1000}
+      >
+        <RegistrationForm onCancel={closeForm} />
+      </Modal>
+
+    </div>
               </div>
                 <Table dataSource={data} columns={columns} pagination={{
                   total: meta?.total ? meta?.total : 0,
@@ -970,31 +1133,52 @@ const DashboardPage = ({ onLogout, visible }) => {
 
       {/* lis of farmer nga add form */}
       <Modal
-        title="Add Farmer"
+        title="Member Registration"
         open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
       >
         <Form onFinish={handleModalSubmit}>
-          <Form.Item label="Reference Number" name="DA_referenceNumber" rules={[{ required: true }]}>
+          {/* <Form.Item label="Reference Number" name="DA_referenceNumber" rules={[{ required: true }]}>
             <Input />
-          </Form.Item>
+          </Form.Item> */}
           
-          <Form.Item label="User ID" name="userId" rules={[{ required: false }]}>
+          {/* <Form.Item label="User ID" name="userId" rules={[{ required: false }]}>
             <Input />
-          </Form.Item>
+          </Form.Item> */}
+            <Form.Item  name="lastName" label="Last Name" rules={[{ required: true, message: 'Please input your last name!' }]} style={{ flex: 1 }}>
+          <Input />
+        </Form.Item>
+
+        <Form.Item name="firstName" label="First Name" rules={[{ required: true, message: 'Please input your first name!' }]} style={{ flex: 1 }}>
+          <Input />
+        </Form.Item>
           <Form.Item label="Address" name="address" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
+          {/* <Form.Item name="city" label="City" rules={[{ required: true, message: 'Please input the city!' }]}>
+        <Input />
+      </Form.Item>
+
+      <Form.Item name="municipality" label="Municipality" rules={[{ required: true, message: 'Please input the municipality!' }]}>
+        <Input />
+      </Form.Item>
+
+      <Form.Item name="barangay" label="Barangay" rules={[{ required: true, message: 'Please input the barangay!' }]}>
+        <Input />
+      </Form.Item> */}
           <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: false }]}>
+              <Form.Item label="Zipcode" name="zip" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          {/* <Form.Item label="Farm Coordinates ID" name="landCoordinates" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Total Hectares Owned" name="totalHectaresOwned" rules={[{ required: true }]}>
             <Input />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item label="Proof Of Ownership (drive link)" name="proofOfOwnership" rules={[{ required: true }]}>
             <Input />
